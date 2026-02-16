@@ -182,28 +182,30 @@ function preloadUpcoming(count) {
 
 /* ===== HARD STOP MEDIA ===== */
 function stopAllMedia() {
-    const medias = document.querySelectorAll("video, audio");
 
+    // Stop video & audio elements
+    const medias = document.querySelectorAll("video, audio");
     medias.forEach(media => {
         try {
             media.pause();
             media.currentTime = 0;
-
-            // Remove source properly
             media.src = "";
             media.removeAttribute("src");
-
-            // Force unload
             media.load();
+            media.remove();
+        } catch (e) {}
+    });
 
-            // Remove from DOM
-            if (media.parentNode) {
-                media.parentNode.removeChild(media);
-            }
-
+    // Destroy ALL iframes (this is the missing piece)
+    const iframes = document.querySelectorAll("iframe");
+    iframes.forEach(frame => {
+        try {
+            frame.src = "about:blank"; // kill stream
+            frame.remove();
         } catch (e) {}
     });
 }
+
 
 
 document.getElementById("revealBtn").addEventListener("click", loadNextFromDeck);
@@ -223,9 +225,9 @@ async function loadNextFromDeck() {
 
     display.classList.add("fade-out");
 
-    setTimeout(() => {
-    stopAllMedia();        // FIRST
-    display.innerHTML = ""; 
+   setTimeout(() => {
+    stopAllMedia();
+    display.innerHTML = "";
     embedContent(nextLink);
     display.classList.remove("fade-out");
     preloadUpcoming(3);
@@ -527,6 +529,7 @@ animate();
 </script>
 </body>
 </html>
+
 
 
 
