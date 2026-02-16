@@ -224,12 +224,13 @@ async function loadNextFromDeck() {
     display.classList.add("fade-out");
 
     setTimeout(() => {
-        stopAllMedia();              // 🔥 ensures previous audio/video dies
-        display.innerHTML = "";      // remove old content
-        embedContent(nextLink);
-        display.classList.remove("fade-out");
-        preloadUpcoming(3);
-    }, 300);
+    stopAllMedia();        // FIRST
+    display.innerHTML = ""; 
+    embedContent(nextLink);
+    display.classList.remove("fade-out");
+    preloadUpcoming(3);
+}, 300);
+
 }
 
 function embedContent(url) {
@@ -526,5 +527,6 @@ animate();
 </script>
 </body>
 </html>
+
 
 
