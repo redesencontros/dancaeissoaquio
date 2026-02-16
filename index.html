@@ -213,7 +213,16 @@ async function loadNextFromDeck() {
     }, 300);
 }
 
-function embedContent(url) {
+function stopAllMedia() {
+    const medias = document.querySelectorAll("video, audio");
+    medias.forEach(media => {
+        media.pause();
+        media.currentTime = 0;
+        media.src = "";
+        media.load();
+    });
+}
+    function embedContent(url) {
     const display = document.getElementById("contentDisplay");
     display.innerHTML = "";
 
@@ -536,6 +545,7 @@ animate();
 </script>
 </body>
 </html>
+
 
 
 
