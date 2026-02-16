@@ -76,6 +76,13 @@ header {
     object-fit: contain;
 }
 
+/* Lock interaction */
+#contentDisplay video,
+#contentDisplay audio {
+    pointer-events: none;
+}
+
+
 /* ===== BUTTON ===== */
 #revealBtn {
     width: clamp(40px, 7vw, 75px);
@@ -526,6 +533,7 @@ animate();
 </script>
 </body>
 </html>
+
 
 
 
