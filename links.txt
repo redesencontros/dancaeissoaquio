@@ -1,7 +1,8 @@
 https://raw.githubusercontent.com/redesencontros/dancaeissoaquio/main/video/video1.mp4
 https://raw.githubusercontent.com/redesencontros/dancaeissoaquio/main/audio/audio2.mp3
-https://redesencontros.github.io/dancaeissoaquio/main/pdf/to/pdf1.pdf
+https://redesencontros.github.io/dancaeissoaquio/pdf/to/pdf1.pdf
 https://raw.githubusercontent.com/redesencontros/dancaeissoaquio/main/imagem/foto1.jpg
+
 
 
 
