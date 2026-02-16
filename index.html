@@ -129,18 +129,35 @@ let isLoaded = false;
 async function fetchSheet() {
     if (isLoaded) return;
 
-    const response = await fetch(sheetURL + "&cacheBust=" + Date.now());
-    const text = await response.text();
+    try {
+        const response = await fetch(sheetURL + "?cacheBust=" + Date.now());
 
-    const rows = text.split(/\r?\n/)
-                     .map(r => r.trim())
-                     .filter(r => r.length > 0);
+        if (!response.ok) {
+            throw new Error("HTTP error " + response.status);
+        }
 
-    links = rows.map(r => r.split("\t")[0]);
-    shuffleDeck();
-    isLoaded = true;
-    preloadUpcoming(3);
+        const text = await response.text();
+
+        const rows = text.split(/\r?\n/)
+                         .map(r => r.trim())
+                         .filter(r => r.length > 0);
+
+        links = rows.map(r => r.split("\t")[0]);
+
+        if (links.length === 0) {
+            console.warn("links.txt loaded but empty");
+            return;
+        }
+
+        shuffleDeck();
+        isLoaded = true;
+        preloadUpcoming(3);
+
+    } catch (err) {
+        console.error("Failed to load links.txt:", err);
+    }
 }
+
 
 function shuffleDeck() {
     deck = [...links];
@@ -433,6 +450,7 @@ animate();
 </script>
 </body>
 </html>
+
 
 
 
