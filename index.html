@@ -242,13 +242,15 @@ function embedContent(url) {
 
     // ===== PDF =====
     if (lower.match(/\.pdf$/)) {
-        const iframe = document.createElement("iframe");
-        iframe.src = url;
-        iframe.style.width = "100%";
-        iframe.style.height = "100%";
-        display.appendChild(iframe);
-        return;
-    }
+    const iframe = document.createElement("iframe");
+    iframe.src = "https://docs.google.com/gview?embedded=1&url=" + encodeURIComponent(url);
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
+    iframe.style.border = "none";
+    display.appendChild(iframe);
+    return;
+}
+
 
     // ===== Fallback (iframe for anything else) =====
     const iframe = document.createElement("iframe");
@@ -494,6 +496,7 @@ animate();
 </script>
 </body>
 </html>
+
 
 
 
