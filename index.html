@@ -231,14 +231,22 @@ function embedContent(url) {
     }
 
     // ===== AUDIO =====
-    if (lower.match(/\.(mp3|wav|ogg)$/)) {
-        const audio = document.createElement("audio");
-        audio.src = url;
-        audio.controls = true;
-        audio.autoplay = true;
-        display.appendChild(audio);
-        return;
-    }
+  if (lower.match(/\.(mp3|wav|ogg)$/)) {
+    const audio = document.createElement("audio");
+    audio.src = url;
+    audio.controls = true;
+    audio.autoplay = true;
+    audio.playsInline = true;
+    display.appendChild(audio);
+
+    // Force play attempt
+    audio.play().catch(err => {
+        console.log("Autoplay blocked:", err);
+    });
+
+    return;
+}
+
 
     // ===== PDF =====
     if (lower.match(/\.pdf$/)) {
@@ -496,6 +504,7 @@ animate();
 </script>
 </body>
 </html>
+
 
 
 
