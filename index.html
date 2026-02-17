@@ -291,7 +291,7 @@ class Boid {
       this.vy += separationY * 0.02;
     }
 
-    const globalPull = 0.00009;
+    const globalPull = 0.0001;
     this.vx += (width / 2 - this.x) * globalPull;
     this.vy += (height / 2 - this.y) * globalPull;
 
@@ -443,3 +443,4 @@ function showContent(url) {
 
 </body>
 </html>
+
