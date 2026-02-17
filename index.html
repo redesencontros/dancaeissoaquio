@@ -124,13 +124,8 @@ const gl = canvas.getContext("webgl");
 let width, height;
 
 function resize() {
-  const dpr = Math.min(window.devicePixelRatio || 1, 1.5); 
-  width = canvas.width = window.innerWidth * dpr;
-  height = canvas.height = window.innerHeight * dpr;
-
-  canvas.style.width = window.innerWidth + "px";
-  canvas.style.height = window.innerHeight + "px";
-
+  width = canvas.width = window.innerWidth;
+  height = canvas.height = window.innerHeight;
   gl.viewport(0, 0, width, height);
 }
 window.addEventListener("resize", resize);
@@ -334,15 +329,14 @@ function animate() {
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   gl.uniform2f(resolutionLocation, width, height);
-  gl.bufferData(gl.ARRAY_BUFFER, positions.byteLength, gl.DYNAMIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, positions, gl.DYNAMIC_DRAW);
   gl.drawArrays(gl.POINTS, 0, BOID_COUNT);
 
   requestAnimationFrame(animate);
 }
 
 animate();
-gl.bufferSubData(gl.ARRAY_BUFFER, 0, positions);
-}
+
 /* =========================
    GAME LOGIC
 ========================= */
@@ -449,7 +443,4 @@ function showContent(url) {
 
 </body>
 </html>
-
-
-
 
