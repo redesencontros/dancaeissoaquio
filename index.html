@@ -1,100 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DANÇA é isso aqui, ó</title>
-
+<title>ameba background</title>
 <style>
-html,body{
-margin:0;
-padding:0;
-overflow:hidden;
-background:#000;
-font-family:Arial, sans-serif;
-color:white;
-}
-
-#bgCanvas{
-position:fixed;
-inset:0;
-z-index:0;
-}
-
-#mainLayer{
-position:relative;
-z-index:1;
-display:flex;
-flex-direction:column;
-height:100vh;
-}
-
-header{
-display:flex;
-justify-content:center;
-padding:2vh 0;
-}
-
-#headerLogo{
-width:clamp(150px,30vw,300px);
-}
-
-#gameContainer{
-flex:1;
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-gap:4vh;
-}
-
-#contentDisplay{
-visibility:hidden;
-font-size:clamp(2rem,5vw,4rem);
-}
-
-#revealBtn{
-width:clamp(40px,7vw,75px);
-cursor:pointer;
-}
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: #000;
+  }
+  canvas {
+    display: block;
+  }
 </style>
 </head>
 <body>
-
-<canvas id="bgCanvas"></canvas>
-
-<div id="mainLayer">
-<header>
-<img id="headerLogo"
-src="https://redesencontros.github.io/dancaeissoaquio/assets/header.png">
-</header>
-
-<div id="gameContainer">
-<div id="contentDisplay"></div>
-<img id="revealBtn"
-src="https://redesencontros.github.io/dancaeissoaquio/assets/button.png">
-</div>
-</div>
+<canvas id="canvas"></canvas>
 
 <script>
-
-/* ================= BUTTON ================= */
-
-const btn = document.getElementById("revealBtn");
-const content = document.getElementById("contentDisplay");
-
-btn.addEventListener("click", () => {
-  content.style.visibility = "visible";
-  content.textContent = "DANÇA!";
-});
-
-/* ================= MURMURATION ================= */
-
-const canvas = document.getElementById("bgCanvas");
+const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 let width, height;
-
 function resize() {
   width = canvas.width = window.innerWidth;
   height = canvas.height = window.innerHeight;
@@ -102,43 +29,94 @@ function resize() {
 window.addEventListener("resize", resize);
 resize();
 
-const BOID_COUNT = 3000;
-const boids = [];
+// ---------------- PERFORMANCE CONTROL ----------------
+
+let lastTime = performance.now();
+let fps = 60;
+
+const MIN_BOIDS = 800;
+const MAX_BOIDS = 3500;
+const INITIAL_BOIDS = 2000;
+
+let perception = 40;
+const cellSize = () => perception;
 
 let time = 0;
 let frame = 0;
 
-const entrySide = Math.floor(Math.random() * 4);
+const boids = [];
 
-const perception = 40;
-const cellSize = perception;
+// ---------------- SPATIAL GRID ----------------
+
 let grid = {};
+let cols, rows;
 
 function buildGrid() {
   grid = {};
+  const size = cellSize();
+  cols = Math.ceil(width / size);
+  rows = Math.ceil(height / size);
+
   for (let i = 0; i < boids.length; i++) {
     const b = boids[i];
-    const cx = Math.floor(b.x / cellSize);
-    const cy = Math.floor(b.y / cellSize);
+    const cx = Math.floor(b.x / size);
+    const cy = Math.floor(b.y / size);
     const key = cx + "," + cy;
+
     if (!grid[key]) grid[key] = [];
     grid[key].push(b);
   }
 }
 
 function getNearbyBoids(boid) {
-  const cx = Math.floor(boid.x / cellSize);
-  const cy = Math.floor(boid.y / cellSize);
+  const size = cellSize();
+  const cx = Math.floor(boid.x / size);
+  const cy = Math.floor(boid.y / size);
+
   let neighbors = [];
 
   for (let x = -1; x <= 1; x++) {
     for (let y = -1; y <= 1; y++) {
       const key = (cx + x) + "," + (cy + y);
-      if (grid[key]) neighbors = neighbors.concat(grid[key]);
+      if (grid[key]) {
+        neighbors = neighbors.concat(grid[key]);
+      }
     }
   }
+
   return neighbors;
 }
+
+// ---------------- FORCE FIELDS ----------------
+
+const fields = [];
+const MAX_FIELDS = 3;
+
+function spawnField() {
+  const field = {
+    x: Math.random() * width,
+    y: Math.random() * height,
+    radius: 250 + Math.random() * 400,
+    strength: (Math.random() > 0.5 ? 1 : -1) * (0.08 + Math.random() * 0.5),
+    life: 500 + Math.random() * 400
+  };
+  fields.push(field);
+}
+
+function updateFields() {
+  if (fields.length < MAX_FIELDS && Math.random() < 0.01) {
+    spawnField();
+  }
+
+  for (let i = fields.length - 1; i >= 0; i--) {
+    fields[i].life--;
+    if (fields[i].life <= 0) {
+      fields.splice(i, 1);
+    }
+  }
+}
+
+// ---------------- BOID ----------------
 
 class Boid {
   constructor() {
@@ -147,36 +125,14 @@ class Boid {
     const r = Math.random() * clusterRadius;
     const far = 600;
 
-    if (entrySide === 0) {
-      this.x = -far + Math.cos(angle) * r;
-      this.y = height / 2 + Math.sin(angle) * r;
-      this.vx = 3.5;
-      this.vy = (Math.random() - 0.5) * 0.4;
-    }
-
-    if (entrySide === 1) {
-      this.x = width + far + Math.cos(angle) * r;
-      this.y = height / 2 + Math.sin(angle) * r;
-      this.vx = -3.5;
-      this.vy = (Math.random() - 0.5) * 0.4;
-    }
-
-    if (entrySide === 2) {
-      this.x = width / 2 + Math.cos(angle) * r;
-      this.y = -far + Math.sin(angle) * r;
-      this.vx = (Math.random() - 0.5) * 0.4;
-      this.vy = 3.5;
-    }
-
-    if (entrySide === 3) {
-      this.x = width / 2 + Math.cos(angle) * r;
-      this.y = height + far + Math.sin(angle) * r;
-      this.vx = (Math.random() - 0.5) * 0.4;
-      this.vy = -3.5;
-    }
+    this.x = width / 2 + Math.cos(angle) * r;
+    this.y = height / 2 + Math.sin(angle) * r;
+    this.vx = (Math.random() - 0.5) * 3;
+    this.vy = (Math.random() - 0.5) * 3;
   }
 
   update() {
+
     let alignX = 0, alignY = 0;
     let cohesionX = 0, cohesionY = 0;
     let separationX = 0, separationY = 0;
@@ -185,7 +141,8 @@ class Boid {
     const perceptionSq = perception * perception;
     const neighbors = getNearbyBoids(this);
 
-    for (let other of neighbors) {
+    for (let i = 0; i < neighbors.length; i++) {
+      const other = neighbors[i];
       if (other === this) continue;
 
       const dx = other.x - this.x;
@@ -193,8 +150,10 @@ class Boid {
       const distSq = dx * dx + dy * dy;
 
       if (distSq < perceptionSq) {
+
         alignX += other.vx;
         alignY += other.vy;
+
         cohesionX += other.x;
         cohesionY += other.y;
 
@@ -202,6 +161,7 @@ class Boid {
           separationX -= dx;
           separationY -= dy;
         }
+
         count++;
       }
     }
@@ -214,10 +174,45 @@ class Boid {
 
       this.vx += (alignX - this.vx) * 0.05;
       this.vy += (alignY - this.vy) * 0.05;
+
       this.vx += (cohesionX - this.x) * 0.001;
       this.vy += (cohesionY - this.y) * 0.001;
+
       this.vx += separationX * 0.02;
       this.vy += separationY * 0.02;
+    }
+
+    const globalPull = 0.00008;
+    this.vx += (width / 2 - this.x) * globalPull;
+    this.vy += (height / 2 - this.y) * globalPull;
+
+    for (let f = 0; f < fields.length; f++) {
+      const field = fields[f];
+      const dx = field.x - this.x;
+      const dy = field.y - this.y;
+      const distSq = dx * dx + dy * dy;
+      const rSq = field.radius * field.radius;
+
+      if (distSq < rSq) {
+        const falloff = 1 - distSq / rSq;
+        const influence = field.strength * falloff * 0.0004;
+        this.vx += dx * influence;
+        this.vy += dy * influence;
+      }
+    }
+
+    const windX = Math.sin(this.y * 0.002 + time) * 0.25;
+    const windY = Math.cos(this.x * 0.002 - time) * 0.25;
+    this.vx += windX * 0.02;
+    this.vy += windY * 0.02;
+
+    const speedSq = this.vx * this.vx + this.vy * this.vy;
+    const maxSpeed = 4;
+
+    if (speedSq > maxSpeed * maxSpeed) {
+      const scale = maxSpeed / Math.sqrt(speedSq);
+      this.vx *= scale;
+      this.vy *= scale;
     }
 
     this.x += this.vx;
@@ -229,27 +224,62 @@ class Boid {
   }
 }
 
-for (let i = 0; i < BOID_COUNT; i++) {
+// ---------------- ADAPTIVE SCALING ----------------
+
+function adaptiveScaling() {
+
+  const targetFPS = 55;
+
+  if (fps < targetFPS && boids.length > MIN_BOIDS) {
+    boids.splice(0, 20);
+    perception = Math.max(32, perception - 1);
+  }
+
+  if (fps > 58 && boids.length < MAX_BOIDS) {
+    for (let i = 0; i < 10; i++) {
+      boids.push(new Boid());
+    }
+    perception = Math.min(45, perception + 0.5);
+  }
+}
+
+// ---------------- INIT ----------------
+
+for (let i = 0; i < INITIAL_BOIDS; i++) {
   boids.push(new Boid());
 }
 
-function animate() {
+// ---------------- ANIMATION LOOP ----------------
+
+function animate(now) {
+
+  const delta = now - lastTime;
+  lastTime = now;
+  fps = 1000 / delta;
+
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, width, height);
   ctx.fillStyle = "white";
 
   frame++;
+  updateFields();
   buildGrid();
 
   for (let i = 0; i < boids.length; i++) {
-    if (i % 4 === frame % 4) boids[i].update();
+    if (i % 4 === frame % 4) {
+      boids[i].update();
+    }
     boids[i].draw();
   }
+
+  time += 0.003;
+
+  adaptiveScaling();
 
   requestAnimationFrame(animate);
 }
 
-animate();
+requestAnimationFrame(animate);
 
 </script>
 </body>
