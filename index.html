@@ -39,13 +39,12 @@ align-items:center;
 justify-content:center;
 text-align:center;
 padding:2rem;
-}
+visibility:hidden;
 
-#contentDisplay{
-    font-family:"LemonTuesday", sans-serif;
-    font-size:clamp(2rem,5vw,4rem);
-    line-height:1.2;
-    letter-spacing:0.02em;
+font-family:"LemonTuesday", sans-serif;
+font-size:clamp(2rem,5vw,4rem);
+line-height:1.2;
+letter-spacing:0.02em;
 }
 
 /* ================= MEDIA ================= */
@@ -108,6 +107,9 @@ src="https://redesencontros.github.io/dancaeissoaquio/assets/header.png">
 src="https://redesencontros.github.io/dancaeissoaquio/assets/button.png">
 </div>
 </div>
+document.fonts.load('1em "LemonTuesday"').then(() => {
+    document.getElementById("contentDisplay").style.visibility = "visible";
+});
 
 <script>
 
