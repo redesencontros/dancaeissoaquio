@@ -85,13 +85,14 @@ const content = document.getElementById("contentDisplay");
 
 btn.addEventListener("click", () => {
   content.style.visibility = "visible";
-  content.textContent = "DANÇA!";
+  content.textContent = "DANÇA é isso aqui, ó";
 });
 
-/* ================= MURMURATION ================= */
+
+/* ================= IMPROVED MURMURATION ================= */
 
 const canvas = document.getElementById("bgCanvas");
-const ctx = canvas.getContext("2d");
+const ctx = canvas.getContext("2d", { alpha: false });
 
 let width, height;
 
@@ -102,78 +103,18 @@ function resize() {
 window.addEventListener("resize", resize);
 resize();
 
-const BOID_COUNT = 3000;
+const BOID_COUNT = 2500;
 const boids = [];
 
-let time = 0;
-let frame = 0;
-
-const entrySide = Math.floor(Math.random() * 4);
-
-const perception = 40;
-const cellSize = perception;
-let grid = {};
-
-function buildGrid() {
-  grid = {};
-  for (let i = 0; i < boids.length; i++) {
-    const b = boids[i];
-    const cx = Math.floor(b.x / cellSize);
-    const cy = Math.floor(b.y / cellSize);
-    const key = cx + "," + cy;
-    if (!grid[key]) grid[key] = [];
-    grid[key].push(b);
-  }
-}
-
-function getNearbyBoids(boid) {
-  const cx = Math.floor(boid.x / cellSize);
-  const cy = Math.floor(boid.y / cellSize);
-  let neighbors = [];
-
-  for (let x = -1; x <= 1; x++) {
-    for (let y = -1; y <= 1; y++) {
-      const key = (cx + x) + "," + (cy + y);
-      if (grid[key]) neighbors = neighbors.concat(grid[key]);
-    }
-  }
-  return neighbors;
-}
+const perception = 35;
+const perceptionSq = perception * perception;
 
 class Boid {
   constructor() {
-    const clusterRadius = 260;
-    const angle = Math.random() * Math.PI * 2;
-    const r = Math.random() * clusterRadius;
-    const far = 600;
-
-    if (entrySide === 0) {
-      this.x = -far + Math.cos(angle) * r;
-      this.y = height / 2 + Math.sin(angle) * r;
-      this.vx = 3.5;
-      this.vy = (Math.random() - 0.5) * 0.4;
-    }
-
-    if (entrySide === 1) {
-      this.x = width + far + Math.cos(angle) * r;
-      this.y = height / 2 + Math.sin(angle) * r;
-      this.vx = -3.5;
-      this.vy = (Math.random() - 0.5) * 0.4;
-    }
-
-    if (entrySide === 2) {
-      this.x = width / 2 + Math.cos(angle) * r;
-      this.y = -far + Math.sin(angle) * r;
-      this.vx = (Math.random() - 0.5) * 0.4;
-      this.vy = 3.5;
-    }
-
-    if (entrySide === 3) {
-      this.x = width / 2 + Math.cos(angle) * r;
-      this.y = height + far + Math.sin(angle) * r;
-      this.vx = (Math.random() - 0.5) * 0.4;
-      this.vy = -3.5;
-    }
+    this.x = Math.random() * width;
+    this.y = Math.random() * height;
+    this.vx = (Math.random() - 0.5) * 2;
+    this.vy = (Math.random() - 0.5) * 2;
   }
 
   update() {
@@ -182,10 +123,7 @@ class Boid {
     let separationX = 0, separationY = 0;
     let count = 0;
 
-    const perceptionSq = perception * perception;
-    const neighbors = getNearbyBoids(this);
-
-    for (let other of neighbors) {
+    for (let other of boids) {
       if (other === this) continue;
 
       const dx = other.x - this.x;
@@ -198,10 +136,11 @@ class Boid {
         cohesionX += other.x;
         cohesionY += other.y;
 
-        if (distSq < 60) {
+        if (distSq < 100) {
           separationX -= dx;
           separationY -= dy;
         }
+
         count++;
       }
     }
@@ -214,18 +153,28 @@ class Boid {
 
       this.vx += (alignX - this.vx) * 0.05;
       this.vy += (alignY - this.vy) * 0.05;
-      this.vx += (cohesionX - this.x) * 0.001;
-      this.vy += (cohesionY - this.y) * 0.001;
-      this.vx += separationX * 0.02;
-      this.vy += separationY * 0.02;
+      this.vx += (cohesionX - this.x) * 0.0008;
+      this.vy += (cohesionY - this.y) * 0.0008;
+      this.vx += separationX * 0.01;
+      this.vy += separationY * 0.01;
+    }
+
+    const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
+    const max = 2;
+
+    if (speed > max) {
+      this.vx = (this.vx / speed) * max;
+      this.vy = (this.vy / speed) * max;
     }
 
     this.x += this.vx;
     this.y += this.vy;
-  }
 
-  draw() {
-    ctx.fillRect(this.x | 0, this.y | 0, 1, 1);
+    // wrap screen
+    if (this.x < 0) this.x = width;
+    if (this.x > width) this.x = 0;
+    if (this.y < 0) this.y = height;
+    if (this.y > height) this.y = 0;
   }
 }
 
@@ -236,14 +185,12 @@ for (let i = 0; i < BOID_COUNT; i++) {
 function animate() {
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, width, height);
+
   ctx.fillStyle = "white";
 
-  frame++;
-  buildGrid();
-
-  for (let i = 0; i < boids.length; i++) {
-    if (i % 4 === frame % 4) boids[i].update();
-    boids[i].draw();
+  for (let b of boids) {
+    b.update();
+    ctx.fillRect(b.x, b.y, 1.5, 1.5);
   }
 
   requestAnimationFrame(animate);
@@ -252,5 +199,7 @@ function animate() {
 animate();
 
 </script>
+
 </body>
 </html>
+
