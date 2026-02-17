@@ -13,469 +13,97 @@ html, body {
     padding: 0;
     height: 100%;
     overflow: hidden;
-    font-family: Arial, sans-serif;
-    color: white;
+    background: black;
+    font-family: sans-serif;
 }
 
-#bgCanvas {
+#mediaContainer {
     position: fixed;
-    inset: 1;
-    z-index: 1;
-    background: #333635;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-#mainLayer {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
+video {
+    width: 100%;
     height: 100%;
+    object-fit: cover;
+    pointer-events: none;
 }
 
-header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2vh 0 1vh 0;
-}
-
-#headerLogo {
-    width: clamp(150px, 30vw, 300px);
-}
-
-#gameContainer {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4vh;
-    padding: 2vh 4vw 6vh 4vw;
-}
-
-#contentDisplay {
-    width: min(95%, 1000px);
-    height: 60vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    opacity: 1;
-    transition: opacity 0.6s ease;
-}
-
-#contentDisplay.fade-out { opacity: 0; }
-
-#contentDisplay img,
-#contentDisplay video,
-#contentDisplay audio,
-#contentDisplay iframe {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-}
-
-#revealBtn {
-    width: clamp(40px, 7vw, 75px);
+#fetchBtn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10;
+    padding: 12px 24px;
+    font-size: 16px;
     cursor: pointer;
-    transition: transform 0.15s ease, opacity 0.3s ease;
 }
-
-#revealBtn:hover { transform: translateY(-3px); }
-#revealBtn:active { transform: scale(0.9); }
-
 </style>
 </head>
-
 <body>
 
-<canvas id="bgCanvas"></canvas>
+<div id="mediaContainer">
 
-<div id="mainLayer">
+    <video 
+        id="bgVideo"
+        muted
+        playsinline
+        preload="auto"
+        src="https://redesencontros.github.io/dancaeissoaquio/content/video1.mp4">
+    </video>
 
-<header>
-    <img id="headerLogo"
-         src="https://raw.githubusercontent.com/redesencontros/dancaeissoaquio/main/ativo/dancalogo.png"
-         alt="DANÇA">
-</header>
-
-<div id="gameContainer">
-    <div id="contentDisplay"></div>
-
-    <img id="revealBtn"
-         src="https://raw.githubusercontent.com/redesencontros/dancaeissoaquio/main/ativo/botao.png"
-         alt="Reveal">
-</div>
+    <audio
+        id="bgAudio"
+        preload="auto"
+        src="https://redesencontros.github.io/dancaeissoaquio/content/audio1.mp3">
+    </audio>
 
 </div>
+
+<button id="fetchBtn">FETCH</button>
 
 <script>
+const video = document.getElementById("bgVideo");
+const audio = document.getElementById("bgAudio");
+const fetchBtn = document.getElementById("fetchBtn");
 
-/* ===========================
-   ======= GAME LOGIC ========
-=========================== */
+/* ===== HARD LOCK SETTINGS ===== */
 
-const sheetURL = "https://raw.githubusercontent.com/redesencontros/dancaeissoaquio/main/links.txt";
+// No controls ever
+video.controls = false;
 
-let links = [];
-let deck = [];
-let isLoaded = false;
+// Force loop via property (more reliable than attribute)
+video.loop = true;
+audio.loop = true;
 
-document.getElementById("revealBtn").addEventListener("click", loadNextFromDeck);
-
-/* ===========================
-   ===== SMART PRELOADER =====
-=========================== */
-
-const PRELOAD_AHEAD_DEFAULT = 6;
-const MAX_CONCURRENT = 3;
-const MAX_CACHE_SIZE = 25;
-
-let preloadCache = new Map();
-let preloadQueue = [];
-let activeLoads = 0;
-
-function getAdaptivePreloadCount() {
-    const conn = navigator.connection;
-    if (!conn) return PRELOAD_AHEAD_DEFAULT;
-    if (conn.saveData) return 2;
-
-    switch (conn.effectiveType) {
-        case "slow-2g":
-        case "2g": return 1;
-        case "3g": return 3;
-        default: return PRELOAD_AHEAD_DEFAULT;
+// Attempt autoplay safely
+async function startMedia() {
+    try {
+        await video.play();
+    } catch (e) {
+        video.muted = true;
+        await video.play();
     }
-}
-
-function preloadUpcoming() {
-    const count = getAdaptivePreloadCount();
-    const upcoming = deck.slice(-count);
-
-    upcoming.forEach(url => {
-        if (!url) return;
-        if (preloadCache.has(url)) return;
-        if (preloadQueue.includes(url)) return;
-        if (!url.match(/\.(jpeg|jpg|png|gif|webp)$/i)) return;
-
-        preloadQueue.push(url);
-    });
-
-    processQueue();
-}
-
-function processQueue() {
-    while (activeLoads < MAX_CONCURRENT && preloadQueue.length > 0) {
-        const url = preloadQueue.shift();
-        loadAsset(url);
-    }
-}
-
-async function loadAsset(url) {
-    activeLoads++;
 
     try {
-        const response = await fetch(url, { mode: "cors" });
-        const blob = await response.blob();
-        const blobUrl = URL.createObjectURL(blob);
-
-        const img = new Image();
-        img.decoding = "async";
-        img.src = blobUrl;
-
-        preloadCache.set(url, { blobUrl, img });
-        trimCache();
+        await audio.play();
     } catch (e) {
-        console.warn("Preload failed:", url);
-    }
-
-    activeLoads--;
-    processQueue();
-}
-
-function trimCache() {
-    if (preloadCache.size <= MAX_CACHE_SIZE) return;
-
-    const firstKey = preloadCache.keys().next().value;
-    const entry = preloadCache.get(firstKey);
-
-    URL.revokeObjectURL(entry.blobUrl);
-    preloadCache.delete(firstKey);
-}
-
-/* ===========================
-   ===== SHEET FETCHING ======
-=========================== */
-
-async function fetchSheet() {
-    if (isLoaded) return;
-
-    const response = await fetch(sheetURL, { cache: "no-store" });
-    const text = await response.text();
-
-    const rows = text.split(/\r?\n/)
-                     .map(r => r.trim())
-                     .filter(Boolean);
-
-    links = rows.map(r => r.split("\t")[0]);
-    shuffleDeck();
-
-    isLoaded = true;
-    preloadUpcoming();
-}
-
-function shuffleDeck() {
-    deck = [...links];
-    for (let i = deck.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [deck[i], deck[j]] = [deck[j], deck[i]];
+        // Audio autoplay likely blocked until interaction
+        console.log("Audio autoplay blocked until user interaction.");
     }
 }
 
-/* ===========================
-   ===== CONTENT LOADING =====
-=========================== */
+window.addEventListener("load", startMedia);
 
-async function loadNextFromDeck() {
-
-    const display = document.getElementById("contentDisplay");
-    await fetchSheet();
-
-    if (deck.length === 0) {
-        shuffleDeck();
-        preloadUpcoming();
-    }
-
-    const nextLink = deck.pop();
-
-    display.classList.add("fade-out");
-
-    setTimeout(() => {
-        embedContent(nextLink);
-        display.classList.remove("fade-out");
-        preloadUpcoming();
-    }, 300);
-}
-
-function embedContent(url) {
-    const display = document.getElementById("contentDisplay");
-    display.innerHTML = "";
-
-    if (!url) return;
-
-    console.log("Embedding:", url);
-
-    // IMAGE
-    if (url.match(/\.(jpeg|jpg|png|gif|webp)$/i)) {
-        const img = document.createElement("img");
-        img.src = url;
-        img.loading = "lazy";
-        display.appendChild(img);
-        return;
-    }
-
-    // VIDEO
-    if (url.match(/\.(mp4|webm|ogg)$/i)) {
-        const video = document.createElement("video");
-        video.src = url;
-        video.controls = true;
-        video.autoplay = true;
-        video.playsInline = true;
-        video.style.maxWidth = "100%";
-        video.style.maxHeight = "100%";
-        display.appendChild(video);
-        return;
-    }
-
-    // AUDIO
-    if (url.match(/\.(mp3|wav|ogg)$/i)) {
-        const audio = document.createElement("audio");
-        audio.src = url;
-        audio.controls = true;
-        audio.autoplay = true;
-        display.appendChild(audio);
-        return;
-    }
-
-        // Fallback (iframe)
-    const iframe = document.createElement("iframe");
-    iframe.src = url;
-    iframe.width = "100%";
-    iframe.height = "100%";
-    iframe.allowFullscreen = true;
-    display.appendChild(iframe);
-}
-
-
-
-/* ===========================
-   ===== AMEBA BACKGROUND =====
-=========================== */
-
-const canvas = document.getElementById("bgCanvas");
-const ctx = canvas.getContext("2d");
-
-let width, height;
-function resize() {
-  width = canvas.width = window.innerWidth;
-  height = canvas.height = window.innerHeight;
-}
-window.addEventListener("resize", resize);
-resize();
-
-const BOID_COUNT = 3000;
-const boids = [];
-
-let time = 0;
-let frame = 0;
-
-const entrySide = Math.floor(Math.random() * 4);
-
-const perception = 40;
-const cellSize = perception;
-let grid = {};
-
-function buildGrid() {
-  grid = {};
-  for (let b of boids) {
-    const cx = Math.floor(b.x / cellSize);
-    const cy = Math.floor(b.y / cellSize);
-    const key = cx + "," + cy;
-    if (!grid[key]) grid[key] = [];
-    grid[key].push(b);
-  }
-}
-
-function getNearbyBoids(boid) {
-  const cx = Math.floor(boid.x / cellSize);
-  const cy = Math.floor(boid.y / cellSize);
-  let neighbors = [];
-
-  for (let x = -1; x <= 1; x++) {
-    for (let y = -1; y <= 1; y++) {
-      const key = (cx + x) + "," + (cy + y);
-      if (grid[key]) neighbors = neighbors.concat(grid[key]);
-    }
-  }
-  return neighbors;
-}
-
-class Boid {
-  constructor() {
-    const angle = Math.random() * Math.PI * 2;
-    const r = Math.random() * 260;
-    const far = 600;
-
-    if (entrySide === 0) {
-      this.x = -far + Math.cos(angle) * r;
-      this.y = height / 2 + Math.sin(angle) * r;
-      this.vx = 3.5;
-      this.vy = (Math.random() - 0.5) * 0.4;
-    }
-    if (entrySide === 1) {
-      this.x = width + far + Math.cos(angle) * r;
-      this.y = height / 2 + Math.sin(angle) * r;
-      this.vx = -3.5;
-      this.vy = (Math.random() - 0.5) * 0.4;
-    }
-    if (entrySide === 2) {
-      this.x = width / 2 + Math.cos(angle) * r;
-      this.y = -far + Math.sin(angle) * r;
-      this.vx = (Math.random() - 0.5) * 0.4;
-      this.vy = 3.5;
-    }
-    if (entrySide === 3) {
-      this.x = width / 2 + Math.cos(angle) * r;
-      this.y = height + far + Math.sin(angle) * r;
-      this.vx = (Math.random() - 0.5) * 0.4;
-      this.vy = -3.5;
-    }
-  }
-
-  update() {
-    let alignX = 0, alignY = 0;
-    let cohesionX = 0, cohesionY = 0;
-    let separationX = 0, separationY = 0;
-    let count = 0;
-
-    const neighbors = getNearbyBoids(this);
-
-    for (let other of neighbors) {
-      if (other === this) continue;
-      const dx = other.x - this.x;
-      const dy = other.y - this.y;
-      const distSq = dx*dx + dy*dy;
-
-      if (distSq < perception*perception) {
-        alignX += other.vx;
-        alignY += other.vy;
-        cohesionX += other.x;
-        cohesionY += other.y;
-
-        if (distSq < 60) {
-          separationX -= dx;
-          separationY -= dy;
-        }
-        count++;
-      }
-    }
-
-    if (count > 0) {
-      alignX /= count;
-      alignY /= count;
-      cohesionX /= count;
-      cohesionY /= count;
-
-      this.vx += (alignX - this.vx) * 0.05;
-      this.vy += (alignY - this.vy) * 0.05;
-      this.vx += (cohesionX - this.x) * 0.001;
-      this.vy += (cohesionY - this.y) * 0.001;
-      this.vx += separationX * 0.02;
-      this.vy += separationY * 0.02;
-    }
-
-    const globalPull = 0.00008;
-    this.vx += (width/2 - this.x) * globalPull;
-    this.vy += (height/2 - this.y) * globalPull;
-
-    const speed = Math.hypot(this.vx, this.vy);
-    if (speed > 4) {
-      this.vx *= 4/speed;
-      this.vy *= 4/speed;
-    }
-
-    this.x += this.vx;
-    this.y += this.vy;
-  }
-
-  draw() {
-    ctx.fillRect(this.x|0, this.y|0, 1, 1);
-  }
-}
-
-for (let i = 0; i < BOID_COUNT; i++) {
-  boids.push(new Boid());
-}
-
-function animate() {
-  ctx.fillStyle = "#333635";
-  ctx.fillRect(0,0,width,height);
-  ctx.fillStyle = "white";
-
-  frame++;
-  buildGrid();
-
-  for (let i = 0; i < boids.length; i++) {
-    if (i % 4 === frame % 4) boids[i].update();
-    boids[i].draw();
-  }
-
-  time += 0.003;
-  requestAnimationFrame(animate);
-}
-
-animate();
-
+/* Stop everything when FETCH pressed */
+fetchBtn.addEventListener("click", () => {
+    video.pause();
+    audio.pause();
+});
 </script>
+
 </body>
 </html>
