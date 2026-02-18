@@ -91,6 +91,12 @@ html, body {
     flex-shrink: 0;
     position: relative;
     z-index: 4;
+    transition: transform 0.08s ease, filter 0.08s ease;
+}
+
+#gameButton:active {
+    transform: scale(0.9);
+    filter: brightness(0.8);
 }
 #gameButton,
 #gameButton * {
