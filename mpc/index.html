@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MPC Virtual</title>
+
+<style>
+body{
+        margin:0;
+    background:#111;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    font-family:Arial, sans-serif;
+    user-select:none;
+}
+
+/* MPC desfocado inicialmente */
+#mpc {
+    filter: blur(6px);
+    transition: filter 0.4s ease;
+}
+
+/* Overlay superior */
+#startOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* Botão play */
+#playButton {
+    font-size: 22px;
+    padding: 18px 40px;
+    background: black;
+    color: white;
+    border: 2px solid #444;
+    cursor: pointer;
+    letter-spacing: 3px;
+    transition: transform 0.1s ease, background 0.2s ease;
+}
+
+#playButton:active {
+    transform: scale(0.95);
+}
+/* ===== CORPO 2D ===== */
+
+#mpc{
+    position:relative;
+    padding:55px 50px 50px 50px;
+    background:
+        linear-gradient(135deg,#3a3a3a 25%,#363636 25%,#363636 50%,#3a3a3a 50%,#3a3a3a 75%,#363636 75%);
+    background-size:4px 4px; /* textura metálica sutil */
+}
+
+/* ===== PARAFUSOS ===== */
+
+#mpc::before,
+#mpc::after{
+    content:"";
+    position:absolute;
+    width:14px;
+    height:14px;
+    background:radial-gradient(circle at 30% 30%, #212121, #222);
+    border-radius:50%;
+    box-shadow:inset 0 0 4px #000;
+}
+
+/* canto superior esquerdo */
+#mpc::before{
+    top:12px;
+    left:12px;
+}
+
+/* canto superior direito */
+#mpc::after{
+    top:12px;
+    right:12px;
+}
+
+/* parafusos inferiores */
+#mpc .screw{
+    position:absolute;
+    width:14px;
+    height:14px;
+    background:radial-gradient(circle at 30% 30%, #212121, #222);
+    border-radius:50%;
+    box-shadow:inset 0 0 4px #000;
+}
+
+#screwBL{ bottom:12px; left:12px; }
+#screwBR{ bottom:12px; right:12px; }
+
+/* ===== LOGO ===== */
+
+#logo{
+    position:absolute;
+    top:15px;
+    left:50%;
+    transform:translateX(-50%);
+    height:25px;        /* controla tamanho */
+    width: auto;
+    opacity:0.7;        /* discreto */
+    pointer-events:none;
+}
+
+
+/* ===== TELA ===== */
+
+#screen{
+    width:100%;
+    height:60px;
+    background:#1b3b1b;
+    margin-bottom:35px;
+    box-shadow: inset 0 0 15px #000;
+    color:#7CFF7C;
+
+    display:flex;
+    align-items:center;       /* central vertical */
+    justify-content:center;   /* central horizontal */
+
+    font-size:14px;
+    letter-spacing:1px;
+    text-align:center;
+}
+
+/* ===== GRID ===== */
+
+#pads{
+    display:grid;
+    grid-template-columns: repeat(3, 110px);
+    grid-template-rows: repeat(3, 110px);
+    gap:18px;
+}
+
+/* ===== PADS PRETOS ===== */
+
+.pad{
+    background:linear-gradient(to bottom,#111,#000);
+    border-radius:4px;
+    box-shadow:
+        0 6px 0 #050505,
+        inset 0 0 15px rgba(255,255,255,0.05),
+        inset 0 -8px 12px rgba(0,0,0,0.9);
+    cursor:pointer;
+    transition:all 0.08s ease;
+}
+
+.pad.active{
+    transform:translateY(6px);
+    box-shadow:
+        0 0 0 #050505,
+        inset 0 0 25px #ff6600;
+    background:linear-gradient(to bottom,#ff6600,#cc4400);
+}
+
+/* Responsivo */
+@media (max-width:600px){
+    #pads{
+        grid-template-columns: repeat(3, 85px);
+        grid-template-rows: repeat(3, 85px);
+        gap:15px;
+    }
+}
+</style>
+
+
+</head>
+
+<body>
+<body>
+
+<div id="startOverlay">
+    <button id="playButton">PLAY</button>
+</div>
+
+<div id="mpc">
+    <img id="logo" src="https://redesencontros.github.io/dancaeissoaquio/assets/header.png" alt="DANÇA">
+    <div id="screwBL" class="screw"></div>
+    <div id="screwBR" class="screw"></div>
+    <div id="screen">é isso aqui, ó</div>
+    <div id="pads"></div>
+</div>
+
+<script>
+const baseTrack = new Audio("audio/base.mp3");
+baseTrack.loop = true;
+baseTrack.volume = 0.6;
+
+const padSounds = [
+    "pad1.wav","pad2.wav","pad3.wav",
+    "pad4.wav","pad5.wav","pad6.wav",
+    "pad7.wav","pad8.wav","pad9.wav"
+];
+
+const screen = document.getElementById("screen");
+const padContainer = document.getElementById("pads");
+
+// Criar pads
+padSounds.forEach((sound, i)=>{
+    const pad = document.createElement("div");
+    pad.classList.add("pad");
+    pad.dataset.sound = sound;
+    padContainer.appendChild(pad);
+
+    pad.addEventListener("pointerdown", () => triggerPad(pad));
+});
+
+const overlay = document.getElementById("startOverlay");
+const playButton = document.getElementById("playButton");
+const mpc = document.getElementById("mpc");
+
+playButton.addEventListener("click", () => {
+
+    baseTrack.loop = true; // se quiser looping
+    baseTrack.play();
+
+    overlay.style.opacity = "0";
+    overlay.style.pointerEvents = "none";
+
+    mpc.style.filter = "blur(0px)";
+});
+
+</script>
+
+</body>
+</html>
