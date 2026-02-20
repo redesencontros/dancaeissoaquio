@@ -164,30 +164,17 @@ canvas {
 ========================= */
 
 const canvas = document.getElementById("canvas");
-const gl =
-  canvas.getContext("webgl", { antialias: false }) ||
-  canvas.getContext("experimental-webgl");
-
-if (!gl) {
-  console.log("WebGL not supported");
-}
+const gl = canvas.getContext("webgl");
 
 let width, height;
 
 function resize() {
-  const dpr = window.devicePixelRatio || 1;
-
-  width = window.innerWidth;
-  height = window.innerHeight;
-
-  canvas.width = width * dpr;
-  canvas.height = height * dpr;
-
-  canvas.style.width = width + "px";
-  canvas.style.height = height + "px";
-
-  gl.viewport(0, 0, canvas.width, canvas.height);
+  width = canvas.width = window.innerWidth;
+  height = canvas.height = window.innerHeight;
+  gl.viewport(0, 0, width, height);
 }
+window.addEventListener("resize", resize);
+resize();
 
 /* ---------- SHADERS ---------- */
 
@@ -200,7 +187,7 @@ void main() {
   vec2 zeroToTwo = zeroToOne * 2.0;
   vec2 clipSpace = zeroToTwo - 1.0;
   gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
-  gl_PointSize = 2.5;
+  gl_PointSize = 1.0;
 }
 `;
 
@@ -239,10 +226,8 @@ gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 /* ---------- BOIDS (UNCHANGED LOGIC) ---------- */
 
 const isMobile = window.innerWidth < 768;
-let BOID_COUNT = isMobile ? 250 : 2000;
-const MIN_BOIDS = isMobile ? 80 : 400;
-const MAX_BOIDS = isMobile ? 600 : 3000;
-let boids = [];
+const BOID_COUNT = isMobile ? 500 : 2000;
+const boids = [];
 let frame = 0;
 const perception = 30;
 const cellSize = perception;
@@ -368,60 +353,14 @@ class Boid {
   }
 }
 
-function createBoids(count) {
-  boids = [];
-  for (let i = 0; i < count; i++) {
-    boids.push(new Boid());
-  }
+for (let i = 0; i < BOID_COUNT; i++) {
+  boids.push(new Boid());
 }
 
-createBoids(BOID_COUNT);
+const positions = new Float32Array(BOID_COUNT * 2);
 
-let positions = new Float32Array(BOID_COUNT * 2);
-
-let lastTime = performance.now();
-let fps = 60;
-let fpsSamples = [];
-let fpsCheckInterval = 1000; // 1 segundo
-let lastFpsCheck = performance.now();
-
-function adjustBoids() {
-  const now = performance.now();
-  const delta = now - lastTime;
-  lastTime = now;
-
-  const currentFps = 1000 / delta;
-  fpsSamples.push(currentFps);
-
-  if (now - lastFpsCheck > fpsCheckInterval) {
-
-    const avgFps = fpsSamples.reduce((a, b) => a + b, 0) / fpsSamples.length;
-    fpsSamples = [];
-    lastFpsCheck = now;
-
-    // 🔻 Se FPS caiu
-    if (avgFps < 40 && BOID_COUNT > MIN_BOIDS) {
-      BOID_COUNT = Math.floor(BOID_COUNT * 0.8);
-      BOID_COUNT = Math.max(BOID_COUNT, MIN_BOIDS);
-      createBoids(BOID_COUNT);
-      positions = new Float32Array(BOID_COUNT * 2);
-      console.log("Reducing boids →", BOID_COUNT);
-    }
-
-    // 🔺 Se FPS está muito confortável
-    else if (avgFps > 55 && BOID_COUNT < MAX_BOIDS) {
-      BOID_COUNT = Math.floor(BOID_COUNT * 1.1);
-      BOID_COUNT = Math.min(BOID_COUNT, MAX_BOIDS);
-      createBoids(BOID_COUNT);
-      positions = new Float32Array(BOID_COUNT * 2);
-      console.log("Increasing boids →", BOID_COUNT);
-    }
-  }
-}
-    
 function animate() {
- adjustBoids();
-    frame++;
+  frame++;
 
   buildGrid();
 
@@ -436,7 +375,7 @@ function animate() {
 
   gl.uniform2f(resolutionLocation, width, height);
   gl.bufferData(gl.ARRAY_BUFFER, positions, gl.DYNAMIC_DRAW);
-  gl.drawArrays(gl.POINTS, 0, boids.length);
+  gl.drawArrays(gl.POINTS, 0, BOID_COUNT);
 
   requestAnimationFrame(animate);
 }
@@ -620,5 +559,3 @@ function showContent(url) {
 </body>
 
 </html>
-
-
