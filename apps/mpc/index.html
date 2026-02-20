@@ -76,30 +76,26 @@ body{
 /* ===== REMOVIDO CORPO VISUAL ===== */
 
 #mpc{
-    position:relative;
-    width:100%;
-    max-width:600px;
-    flex:1;
-    min-height:0;
-    box-sizing:border-box;
+    width:min(90vw, 600px);
+    aspect-ratio: 3 / 4;   /* controla proporção total */
+    
     display:flex;
     flex-direction:column;
     justify-content:space-between;
     align-items:center;
-    padding:clamp(12px, 4vh, 40px) 0;  /* ← AQUI SIM */
+
+    box-sizing:border-box;
 }
 
 /* ===== TELA ===== */
 
 #screen{
     width:100%;
-    flex:0 0 auto;
-    min-height:60px;
-    max-height:140px;
-
+    flex:0 0 18%;  /* visor ocupa 18% da altura total */
+    
     background:#1b3b1b;
-    margin-bottom:30px;
-
+    margin-bottom:3%;
+    
     box-shadow: inset 0 0 15px #000;
     color:#7CFF7C;
 
@@ -125,20 +121,19 @@ body{
 #pads{
     width:100%;
     flex:1;
-    min-height:0;
+
     display:grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
 
-    gap:clamp(8px, 2vh, 24px);
+    gap:3%;
 }
 
 /* ===== PADS ULTRA FLAT ===== */
 
 .pad{
     width:100%;
-    aspect-ratio:1/1;
-
+    
     background:#ffffff;
     border-radius:4px;
 
@@ -315,5 +310,6 @@ playButton.addEventListener("click", async () => {
 </script>
 </body>
 </html>
+
 
 
