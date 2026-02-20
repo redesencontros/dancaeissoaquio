@@ -164,17 +164,30 @@ canvas {
 ========================= */
 
 const canvas = document.getElementById("canvas");
-const gl = canvas.getContext("webgl");
+const gl =
+  canvas.getContext("webgl", { antialias: false }) ||
+  canvas.getContext("experimental-webgl");
+
+if (!gl) {
+  console.log("WebGL not supported");
+}
 
 let width, height;
 
 function resize() {
-  width = canvas.width = window.innerWidth;
-  height = canvas.height = window.innerHeight;
-  gl.viewport(0, 0, width, height);
+  const dpr = window.devicePixelRatio || 1;
+
+  width = window.innerWidth;
+  height = window.innerHeight;
+
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+
+  canvas.style.width = width + "px";
+  canvas.style.height = height + "px";
+
+  gl.viewport(0, 0, canvas.width, canvas.height);
 }
-window.addEventListener("resize", resize);
-resize();
 
 /* ---------- SHADERS ---------- */
 
@@ -187,7 +200,7 @@ void main() {
   vec2 zeroToTwo = zeroToOne * 2.0;
   vec2 clipSpace = zeroToTwo - 1.0;
   gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
-  gl_PointSize = 1.0;
+  gl_PointSize = 2.5;
 }
 `;
 
@@ -423,7 +436,7 @@ function animate() {
 
   gl.uniform2f(resolutionLocation, width, height);
   gl.bufferData(gl.ARRAY_BUFFER, positions, gl.DYNAMIC_DRAW);
-  gl.drawArrays(gl.POINTS, 0, BOID_COUNT);
+  gl.drawArrays(gl.POINTS, 0, boids.length);
 
   requestAnimationFrame(animate);
 }
@@ -607,4 +620,5 @@ function showContent(url) {
 </body>
 
 </html>
+
 
