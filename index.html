@@ -226,8 +226,10 @@ gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 /* ---------- BOIDS (UNCHANGED LOGIC) ---------- */
 
 const isMobile = window.innerWidth < 768;
-const BOID_COUNT = isMobile ? 500 : 2000;
-const boids = [];
+let BOID_COUNT = isMobile ? 250 : 2000;
+const MIN_BOIDS = isMobile ? 80 : 400;
+const MAX_BOIDS = isMobile ? 600 : 3000;
+let boids = [];
 let frame = 0;
 const perception = 30;
 const cellSize = perception;
@@ -353,14 +355,60 @@ class Boid {
   }
 }
 
-for (let i = 0; i < BOID_COUNT; i++) {
-  boids.push(new Boid());
+function createBoids(count) {
+  boids = [];
+  for (let i = 0; i < count; i++) {
+    boids.push(new Boid());
+  }
 }
 
-const positions = new Float32Array(BOID_COUNT * 2);
+createBoids(BOID_COUNT);
 
+let positions = new Float32Array(BOID_COUNT * 2);
+
+let lastTime = performance.now();
+let fps = 60;
+let fpsSamples = [];
+let fpsCheckInterval = 1000; // 1 segundo
+let lastFpsCheck = performance.now();
+
+function adjustBoids() {
+  const now = performance.now();
+  const delta = now - lastTime;
+  lastTime = now;
+
+  const currentFps = 1000 / delta;
+  fpsSamples.push(currentFps);
+
+  if (now - lastFpsCheck > fpsCheckInterval) {
+
+    const avgFps = fpsSamples.reduce((a, b) => a + b, 0) / fpsSamples.length;
+    fpsSamples = [];
+    lastFpsCheck = now;
+
+    // 🔻 Se FPS caiu
+    if (avgFps < 40 && BOID_COUNT > MIN_BOIDS) {
+      BOID_COUNT = Math.floor(BOID_COUNT * 0.8);
+      BOID_COUNT = Math.max(BOID_COUNT, MIN_BOIDS);
+      createBoids(BOID_COUNT);
+      positions = new Float32Array(BOID_COUNT * 2);
+      console.log("Reducing boids →", BOID_COUNT);
+    }
+
+    // 🔺 Se FPS está muito confortável
+    else if (avgFps > 55 && BOID_COUNT < MAX_BOIDS) {
+      BOID_COUNT = Math.floor(BOID_COUNT * 1.1);
+      BOID_COUNT = Math.min(BOID_COUNT, MAX_BOIDS);
+      createBoids(BOID_COUNT);
+      positions = new Float32Array(BOID_COUNT * 2);
+      console.log("Increasing boids →", BOID_COUNT);
+    }
+  }
+}
+    
 function animate() {
-  frame++;
+ adjustBoids();
+    frame++;
 
   buildGrid();
 
@@ -559,3 +607,4 @@ function showContent(url) {
 </body>
 
 </html>
+
