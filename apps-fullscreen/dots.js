@@ -134,7 +134,7 @@ class Dot {
       });
     }
 
-    if (this.trail.length > 200) this.trail.shift();
+    if (this.trail.length > 60) this.trail.shift();
   }
 
   seek(dx, dy, maxSpeed) {
@@ -199,7 +199,7 @@ class Dot {
       const p = this.trail[i];
       const age = now - p.time;
 
-      if (age > 7000) {
+      if (age > 3000) {
         this.trail.splice(i, 1);
         i--;
         continue;
@@ -296,4 +296,5 @@ window.__destroyDots = function() {
 
 
 })();
+
 
