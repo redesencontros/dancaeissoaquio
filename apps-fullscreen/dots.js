@@ -37,24 +37,11 @@ document.body.appendChild(trailCanvas);
 document.body.appendChild(dotCanvas);
 
 function resizeCanvas() {
-  const dpr = window.devicePixelRatio || 1;
-
-  const width = window.innerWidth;
-  const height = window.innerHeight;
-
-  trailCanvas.width = width * dpr;
-  trailCanvas.height = height * dpr;
-  dotCanvas.width = width * dpr;
-  dotCanvas.height = height * dpr;
-
-  trailCanvas.style.width = width + "px";
-  trailCanvas.style.height = height + "px";
-  dotCanvas.style.width = width + "px";
-  dotCanvas.style.height = height + "px";
-
-  trailCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  dotCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  trailCanvas.width = dotCanvas.width = window.innerWidth;
+  trailCanvas.height = dotCanvas.height = window.innerHeight;
 }
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
 
 /* =========================
    CURSOR
@@ -307,4 +294,3 @@ window.__destroyDots = function() {
 };
 
 })();
-
