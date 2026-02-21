@@ -17,8 +17,6 @@ const trailCtx = trailCanvas.getContext("2d");
 
 const dotCanvas = document.createElement("canvas");
 const dotCtx = dotCanvas.getContext("2d");
-   console.log(trailCtx);
-console.log(dotCtx);
 
 trailCanvas.style.position = "fixed";
 dotCanvas.style.position = "fixed";
@@ -114,8 +112,7 @@ class Dot {
       this.seek(dx, dy, dynamicMaxSpeed);
     }
 
-    if (!IS_MOBILE) this.separate(dots);
-    if (IS_MOBILE) this.separateMobile(dots);
+    this.separate(dots);
 
     const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
     if (speed > dynamicMaxSpeed) {
@@ -126,18 +123,21 @@ class Dot {
     this.x += this.vx;
     this.y += this.vy;
 
-    this.frameCounter++;
+   if (!IS_MOBILE) {
 
-    if (this.frameCounter % 2 === 0) {
-      this.trail.push({
-        x: this.x,
-        y: this.y,
-        time: performance.now()
-      });
-    }
+  this.frameCounter++;
 
-    if (this.trail.length > 30) this.trail.shift();
+  if (this.frameCounter % 2 === 0) {
+    this.trail.push({
+      x: this.x,
+      y: this.y,
+      time: performance.now()
+    });
   }
+
+  if (this.trail.length > 30) this.trail.shift();
+
+}
 
   seek(dx, dy, maxSpeed) {
     const dist = Math.sqrt(dx*dx + dy*dy);
@@ -201,15 +201,15 @@ class Dot {
       const p = this.trail[i];
       const age = now - p.time;
 
-      if (age > 2000) {
+      if (age > 3000) {
         this.trail.splice(i, 1);
         i--;
         continue;
       }
 
       let alpha = 1;
-      if (age > 3000) {
-        const fade = (age - 3000) / 3000;
+      if (age > 2000) {
+        const fade = (age - 2000) / 2000;
         alpha = 1 - fade;
       }
 
@@ -262,7 +262,6 @@ const dots = colors.map((color, index) => {
 ========================= */
 
 function animate() {
-alert("frame");
    if (destroyed) return;
 
   idleTimer++;
@@ -273,10 +272,11 @@ alert("frame");
 
   for (let dot of dots) dot.update(dots);
   for (let dot of dots) if (!dot.above) dot.drawDot(dotCtx);
+  if (!IS_MOBILE) {
   for (let dot of dots) dot.drawTrail(now);
+}
   for (let dot of dots) if (dot.above) dot.drawDot(dotCtx);
 
- alert("ANTES DO LOOP");
 animationId = requestAnimationFrame(animate);
 }
 
@@ -300,6 +300,7 @@ window.__destroyDots = function() {
 
 
 })();
+
 
 
 
