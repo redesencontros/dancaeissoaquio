@@ -112,8 +112,7 @@ class Dot {
       this.seek(dx, dy, dynamicMaxSpeed);
     }
 
-    if (!IS_MOBILE) this.separate(dots);
-    if (IS_MOBILE) this.separateMobile(dots);
+    this.separate(dots);
 
     const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
     if (speed > dynamicMaxSpeed) {
