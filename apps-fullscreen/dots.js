@@ -136,7 +136,7 @@ class Dot {
       });
     }
 
-    if (this.trail.length > 60) this.trail.shift();
+    if (this.trail.length > 30) this.trail.shift();
   }
 
   seek(dx, dy, maxSpeed) {
@@ -201,7 +201,7 @@ class Dot {
       const p = this.trail[i];
       const age = now - p.time;
 
-      if (age > 3000) {
+      if (age > 2000) {
         this.trail.splice(i, 1);
         i--;
         continue;
@@ -262,6 +262,7 @@ const dots = colors.map((color, index) => {
 ========================= */
 
 function animate() {
+   console.log("frame");
   if (destroyed) return;
 
   idleTimer++;
@@ -298,6 +299,7 @@ window.__destroyDots = function() {
 
 
 })();
+
 
 
 
