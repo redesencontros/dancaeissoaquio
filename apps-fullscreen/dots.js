@@ -1,5 +1,8 @@
 (function() {
 
+console.log("DOTS SCRIPT STARTED");
+alert("dots loaded");
+
 if (window.__DOTS_RUNNING__) return;
 window.__DOTS_RUNNING__ = true;
 
@@ -296,5 +299,6 @@ window.__destroyDots = function() {
 
 
 })();
+
 
 
