@@ -262,7 +262,6 @@ const dots = colors.map((color, index) => {
 ========================= */
 
 function animate() {
-   alert("frame");
   if (destroyed) return;
 
   idleTimer++;
@@ -299,6 +298,7 @@ window.__destroyDots = function() {
 
 
 })();
+
 
 
 
