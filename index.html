@@ -358,6 +358,7 @@ for (let i = 0; i < BOID_COUNT; i++) {
 }
 
 const positions = new Float32Array(BOID_COUNT * 2);
+gl.bufferData(gl.ARRAY_BUFFER, positions.byteLength, gl.DYNAMIC_DRAW);
 
 function animate() {
   frame++;
@@ -365,16 +366,20 @@ function animate() {
   buildGrid();
 
   for (let i = 0; i < boids.length; i++) {
-    if (i % 4 === frame % 5) boids[i].update();
-    positions[i * 2] = boids[i].x;
-    positions[i * 2 + 1] = boids[i].y;
+
+  if (i % 5 === frame % 5) {
+    boids[i].update();
   }
+
+  positions[i * 2] = boids[i].x;
+  positions[i * 2 + 1] = boids[i].y;
+}
 
   gl.clearColor(0.2, 0.212, 0.208, 1);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   gl.uniform2f(resolutionLocation, width, height);
-  gl.bufferData(gl.ARRAY_BUFFER, positions, gl.DYNAMIC_DRAW);
+  gl.bufferSubData(gl.ARRAY_BUFFER, 0, positions);
   gl.drawArrays(gl.POINTS, 0, BOID_COUNT);
 
   requestAnimationFrame(animate);
