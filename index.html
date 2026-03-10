@@ -206,7 +206,21 @@ canvas {
     </button>
 
 </div>
+<!-- =========================
+     MENU BUTTON
+========================= -->
 
+<div id="menuButton">
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
+
+<div id="menuDropdown">
+    <div class="menuItem" data-page="https://redesencontros.github.io/dancaeissoaquio/assets/text/sobre.txt">SOBRE</div>
+    <div class="menuItem" data-page="https://redesencontros.github.io/dancaeissoaquio/assets/text/historico.txt">HISTÓRICO</div>
+    <div class="menuItem" data-page="https://redesencontros.github.io/dancaeissoaquio/assets/text/ficha.txt">FICHA TÉCNICA</div>
+</div>
 <script>
 document.addEventListener("contextmenu", function (e) {
     e.preventDefault();
@@ -670,29 +684,20 @@ document.querySelectorAll(".menuItem").forEach(item => {
     });
 
 });
+document.addEventListener("click", (e) => {
 
+    if (!menuButton.contains(e.target) && !menuDropdown.contains(e.target)) {
+        menuDropdown.style.display = "none";
+    }
+
+});
 });
 
 </script>
-<!-- =========================
-     MENU BUTTON
-========================= -->
-
-<div id="menuButton">
-    <span></span>
-    <span></span>
-    <span></span>
-</div>
-
-<div id="menuDropdown">
-    <div class="menuItem" data-page="https://redesencontros.github.io/dancaeissoaquio/assets/text/sobre.txt">SOBRE</div>
-    <div class="menuItem" data-page="https://redesencontros.github.io/dancaeissoaquio/assets/text/historico.txt">HISTÓRICO</div>
-    <div class="menuItem" data-page="https://redesencontros.github.io/dancaeissoaquio/assets/text/ficha.txt">FICHA TÉCNICA</div>
-</div>
-
 </body>
 
 </html>
+
 
 
 
