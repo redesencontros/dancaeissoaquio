@@ -217,9 +217,9 @@ canvas {
 </div>
 
 <div id="menuDropdown">
-    <div class="menuItem" data-page="https://redesencontros.github.io/dancaeissoaquio/content/sobre.txt">SOBRE</div>
-    <div class="menuItem" data-page="https://redesencontros.github.io/dancaeissoaquio/content/historico.txt">HISTÓRICO</div>
-    <div class="menuItem" data-page="https://redesencontros.github.io/dancaeissoaquio/content/ficha.txt">FICHA TÉCNICA</div>
+    <div class="menuItem" data-page="content/sobre.txt">SOBRE</div>
+    <div class="menuItem" data-page="content/historico.txt">HISTÓRICO</div>
+    <div class="menuItem" data-page="content/ficha.txt">FICHA TÉCNICA</div>
 </div>
 <script>
 document.addEventListener("contextmenu", function (e) {
@@ -462,7 +462,7 @@ const CONFIG = {
     headerImage: "https://redesencontros.github.io/dancaeissoaquio/assets/header.png",
     buttonImage: "https://redesencontros.github.io/dancaeissoaquio/assets/button.png",
     buttonSound: "https://redesencontros.github.io/dancaeissoaquio/assets/button-sound.mp3",
-    contentListTxt: "content-list.txt"
+    contentListTxt: "./content-list.txt"
 };
 
 let deck = [];
@@ -570,9 +570,16 @@ function showContent(url) {
        TEXTO
     ========================= */
    else if (lower.match(/\.txt$/)) {
-    fetch(url)
-        .then(res => res.text())
-        .then(text => {
+  fetch(url)
+    .then(res => {
+        if (!res.ok) throw new Error("File not found");
+        return res.text();
+    })
+    .then(text => {
+        .catch(err => {
+    const display = document.getElementById("contentDisplay");
+    display.innerHTML = "<div style='color:white'>Content not found</div>";
+});
 
             let align = "center";
             let lines = text.split("\n");
@@ -697,6 +704,7 @@ document.addEventListener("click", (e) => {
 </body>
 
 </html>
+
 
 
 
