@@ -76,7 +76,7 @@ html, body {
     justify-content: center;
     align-items: center;
     padding: 0;
-    overflow: hidden;
+    overflow-y: auto;
     z-index: 2;
 }
 
@@ -139,6 +139,64 @@ canvas {
     position: relative;
     z-index: 5;
 }
+/* =========================
+   HAMBURGER MENU
+========================= */
+
+#menuButton {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 32px;
+    height: 24px;
+    z-index: 9999;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+#menuButton span {
+    display: block;
+    height: 3px;
+    background: white;
+    margin: 5px 0;
+    transition: transform 0.3s, opacity 0.3s;
+}
+
+/* ANIMATION */
+
+#menuButton.open span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+#menuButton.open span:nth-child(2) {
+    opacity: 0;
+}
+
+#menuButton.open span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+/* =========================
+   MENU DROPDOWN
+========================= */
+
+#menuDropdown {
+    position: fixed;
+    top: 60px;
+    right: 20px;
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+    font-family: MyFont, sans-serif;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(4px);
+}
+
+.menuItem {
+    color: white;
+    padding: 8px 12px;
+    cursor: pointer;
+}
 
 </style>
 </head>
@@ -163,7 +221,21 @@ canvas {
     </button>
 
 </div>
+<!-- =========================
+     MENU BUTTON
+========================= -->
 
+<div id="menuButton">
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
+
+<div id="menuDropdown">
+    <div class="menuItem" data-page="https://redesencontros.github.io/dancaeissoaquio/content/sobre.txt">SOBRE</div>
+    <div class="menuItem" data-page="https://redesencontros.github.io/dancaeissoaquio/content/historico.txt">HISTÓRICO</div>
+    <div class="menuItem" data-page="https://redesencontros.github.io/dancaeissoaquio/content/ficha.txt">FICHA TÉCNICA</div>
+</div>
 <script>
 document.addEventListener("contextmenu", function (e) {
     e.preventDefault();
@@ -174,7 +246,7 @@ document.addEventListener("contextmenu", function (e) {
 ========================= */
 
 const canvas = document.getElementById("canvas");
-const gl = canvas.getContext("webgl");
+const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
 
 let width, height;
 
@@ -405,7 +477,7 @@ const CONFIG = {
     headerImage: "https://redesencontros.github.io/dancaeissoaquio/assets/header.png",
     buttonImage: "https://redesencontros.github.io/dancaeissoaquio/assets/button.png",
     buttonSound: "https://redesencontros.github.io/dancaeissoaquio/assets/button-sound.mp3",
-    contentListTxt: "content-list.txt"
+    contentListTxt: "https://redesencontros.github.io/dancaeissoaquio/content-list.txt"
 };
 
 let deck = [];
@@ -509,12 +581,16 @@ function showContent(url) {
         currentAudio = audio;
     }
 
-    /* =========================
-       TEXTO
-    ========================= */
-   else if (lower.match(/\.txt$/)) {
+   /* =========================
+   TEXTO
+========================= */
+else if (lower.match(/\.txt$/)) {
+
     fetch(url)
-        .then(res => res.text())
+        .then(res => {
+            if (!res.ok) throw new Error("Conteúdo não encontrado");
+            return res.text();
+        })
         .then(text => {
 
             let align = "center";
@@ -525,34 +601,121 @@ function showContent(url) {
                 lines.shift();
             }
 
-            const div = document.createElement("div");
-            div.style.textAlign = align;
-            div.style.padding = "20px";
-            div.style.lineHeight = "1.2em";
-            div.style.fontFamily = "MyFont, sans-serif";
-            div.style.fontSize = "1.2em";
-            div.style.whiteSpace = "pre-wrap";
+           const div = document.createElement("div");
+div.style.textAlign = align;
+div.style.padding = "20px";
+div.style.lineHeight = "1.2em";
+div.style.fontFamily = "MyFont, sans-serif";
+div.style.fontSize = "1.2em";
+div.style.whiteSpace = "pre-wrap";
+div.style.maxWidth = "900px";
+div.style.overflowY = "auto";
 
             let currentColor = "white";
+            let currentColumns = null;
+       lines.forEach(line => {
 
-            lines.forEach(line => {
+    /* COLOR */
+    if (line.startsWith("#color:")) {
+        currentColor = line.replace("#color:", "").trim();
+        return;
+    }
 
-                // Detecta comando de cor
-                if (line.startsWith("#color:")) {
-                    currentColor = line.replace("#color:", "").trim();
-                    return;
-                }
+    /* END COLUMNS */
+    if (line.startsWith("#endcolumns")) {
+        currentColumns = null;
+        return;
+    }
 
-                const lineSpan = document.createElement("span");
-                lineSpan.style.display = "block";
-                lineSpan.style.color = currentColor;
-                lineSpan.innerText = line;
+    /* COLUMNS */
+    if (line.startsWith("#columns:")) {
 
-                div.appendChild(lineSpan);
-            });
+        const cols = parseInt(line.replace("#columns:", "").trim());
 
-            display.appendChild(div);
-        });
+        const columnContainer = document.createElement("div");
+        columnContainer.style.display = "grid";
+        columnContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+        columnContainer.style.gap = "20px";
+        columnContainer.style.margin = "20px 0";
+
+        div.appendChild(columnContainer);
+
+        currentColumns = columnContainer;
+        return;
+    }
+
+    /* IMAGE */
+    if (line.startsWith("#image:")) {
+
+        const url = line.replace("#image:", "").trim();
+
+        const img = document.createElement("img");
+        img.src = url;
+        img.style.maxWidth = "100%";
+        img.style.display = "block";
+        img.style.margin = "20px auto";
+
+        (currentColumns || div).appendChild(img);
+        return;
+    }
+
+    /* VIDEO */
+    if (line.startsWith("#video:")) {
+
+        const url = line.replace("#video:", "").trim();
+
+        const video = document.createElement("video");
+        video.src = url;
+        video.controls = true;
+        video.style.maxWidth = "100%";
+        video.style.display = "block";
+        video.style.margin = "20px auto";
+
+        (currentColumns || div).appendChild(video);
+        return;
+    }
+
+    /* LINK */
+    if (line.startsWith("#link:")) {
+
+        const url = line.replace("#link:", "").trim();
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.innerText = url;
+        a.target = "_blank";
+        a.style.color = currentColor;
+        a.style.display = "block";
+        a.style.margin = "10px 0";
+
+        (currentColumns || div).appendChild(a);
+        return;
+    }
+
+    /* NORMAL TEXT */
+
+    const lineSpan = document.createElement("span");
+    lineSpan.style.display = "block";
+    lineSpan.style.color = currentColor;
+    lineSpan.innerText = line;
+
+    if (currentColumns) {
+        currentColumns.appendChild(lineSpan);
+    } else {
+        div.appendChild(lineSpan);
+    }
+
+});
+
+display.appendChild(div);
+
+})
+.catch(err => {
+
+    display.innerHTML = "<div style='color:white'>Conteúdo não encontrado</div>";
+    console.error(err);
+
+});
 }
     /* =========================
        APPS FULLSCREEN (.js dentro de apps-fullscreen/)
@@ -586,9 +749,53 @@ function showContent(url) {
         display.appendChild(iframe);
     }
 }
+/* =========================
+   MENU SYSTEM
+========================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+const menuButton = document.getElementById("menuButton");
+const menuDropdown = document.getElementById("menuDropdown");
+
+menuButton.addEventListener("click", () => {
+
+    const open = menuDropdown.style.display === "flex";
+    menuDropdown.style.display = open ? "none" : "flex";
+
+    menuButton.classList.toggle("open", !open);
+
+
+});
+
+document.querySelectorAll(".menuItem").forEach(item => {
+
+    item.addEventListener("click", () => {
+
+        menuDropdown.style.display = "none";
+menuButton.classList.remove("open");
+
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio = null;
+        }
+
+        showContent(item.dataset.page);
+
+    });
+
+});
+document.addEventListener("click", (e) => {
+
+    if (!menuButton.contains(e.target) && !menuDropdown.contains(e.target)) {
+       menuDropdown.style.display = "none";
+menuButton.classList.remove("open");
+    }
+
+});
+});
 
 </script>
-
 </body>
 
 </html>
