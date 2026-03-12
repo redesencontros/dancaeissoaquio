@@ -693,7 +693,7 @@ if (isMenu) {
     }
 
    /* =========================
-   TEXTO
+   TEXTO (.txt) RENDERING FIXED
 ========================= */
 else if (lower.match(/\.txt$/)) {
 
@@ -707,141 +707,123 @@ else if (lower.match(/\.txt$/)) {
             let align = "center";
             let lines = text.split("\n");
 
+            // Check first line for alignment
             if (lines[0].startsWith("#align:")) {
                 align = lines[0].replace("#align:", "").trim();
                 lines.shift();
             }
 
-           const div = document.createElement("div");
-div.style.textAlign = align;
-div.style.padding = "6vh 20px";
-div.style.lineHeight = "1.2em";
-div.style.fontFamily = "MyFont, sans-serif";
-div.style.fontSize = "1.2em";
-div.style.whiteSpace = "pre-wrap";
-div.style.overflowY = "auto";
+            const div = document.createElement("div");
+            div.style.textAlign = align;
+            div.style.padding = "6vh 20px";
+            div.style.lineHeight = "1.2em";
+            div.style.fontFamily = "MyFont, sans-serif";
+            div.style.fontSize = "1.2em";
+            div.style.whiteSpace = "pre-wrap";
+            div.style.overflowY = "auto";
 
-/* ONLY LIMIT WIDTH FOR MENU TEXT */
-if (isMenu) {
-    div.style.maxWidth = "70ch";
-    div.style.width = "100%";
-    div.style.margin = "0 auto";
-} else {
-    div.style.maxWidth = "900px";
-}
+            // LIMIT WIDTH FOR MENU TEXT
+            if (isMenu) {
+                div.style.maxWidth = "70ch";
+                div.style.width = "100%";
+                div.style.margin = "0 auto";
+            } else {
+                div.style.maxWidth = "900px";
+            }
 
             let currentColor = "white";
             let currentColumns = null;
-       lines.forEach(line => {
 
-    /* COLOR */
-    if (line.startsWith("#color:")) {
-        currentColor = line.replace("#color:", "").trim();
-        return;
-    }
+            lines.forEach(line => {
 
-    /* END COLUMNS */
-    if (line.startsWith("#endcolumns")) {
-        currentColumns = null;
-        return;
-    }
+                /* COLOR */
+                if (line.startsWith("#color:")) {
+                    let c = line.replace("#color:", "").trim();
+                    // normalize hex to lowercase
+                    if (c.startsWith("#") && c.length === 7) c = c.toLowerCase();
+                    currentColor = c;
+                    return;
+                }
 
-    /* COLUMNS */
-    if (line.startsWith("#columns:")) {
+                /* END COLUMNS */
+                if (line.startsWith("#endcolumns")) {
+                    currentColumns = null;
+                    return;
+                }
 
-        const cols = parseInt(line.replace("#columns:", "").trim());
+                /* COLUMNS */
+                if (line.startsWith("#columns:")) {
+                    const cols = parseInt(line.replace("#columns:", "").trim());
+                    const columnContainer = document.createElement("div");
+                    columnContainer.style.display = "grid";
+                    columnContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+                    columnContainer.style.gap = "20px";
+                    columnContainer.style.margin = "20px 0";
+                    div.appendChild(columnContainer);
+                    currentColumns = columnContainer;
+                    return;
+                }
 
-        const columnContainer = document.createElement("div");
-        columnContainer.style.display = "grid";
-        columnContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-        columnContainer.style.gap = "20px";
-        columnContainer.style.margin = "20px 0";
+                /* IMAGE */
+                if (line.startsWith("#image:")) {
+                    const url = line.replace("#image:", "").trim();
+                    const img = document.createElement("img");
+                    img.src = url;
+                    img.style.maxWidth = "100%";
+                    img.style.display = "block";
+                    img.style.margin = "20px auto";
+                    (currentColumns || div).appendChild(img);
+                    return;
+                }
 
-        div.appendChild(columnContainer);
+                /* VIDEO */
+                if (line.startsWith("#video:")) {
+                    const url = line.replace("#video:", "").trim();
+                    const video = document.createElement("video");
+                    video.src = url;
+                    video.controls = true;
+                    video.style.maxWidth = "100%";
+                    video.style.display = "block";
+                    video.style.margin = "20px auto";
+                    (currentColumns || div).appendChild(video);
+                    return;
+                }
 
-        currentColumns = columnContainer;
-        return;
-    }
+                /* LINK */
+                if (line.startsWith("#link:")) {
+                    const url = line.replace("#link:", "").trim();
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.innerText = url;
+                    a.target = "_blank";
+                    a.style.cssText += `color: ${currentColor} !important; display:block; margin:10px 0;`;
+                    (currentColumns || div).appendChild(a);
+                    return;
+                }
 
-    /* IMAGE */
-    if (line.startsWith("#image:")) {
+                /* EMPTY LINE / SPACING */
+                if (line.trim() === "") {
+                    const spacer = document.createElement("div");
+                    spacer.style.height = "1.2em";
+                    (currentColumns || div).appendChild(spacer);
+                    return;
+                }
 
-        const url = line.replace("#image:", "").trim();
+                /* NORMAL TEXT */
+                const lineSpan = document.createElement("span");
+                lineSpan.style.cssText += `color: ${currentColor} !important; display:block;`;
+                lineSpan.innerText = line;
+                (currentColumns || div).appendChild(lineSpan);
 
-        const img = document.createElement("img");
-        img.src = url;
-        img.style.maxWidth = "100%";
-        img.style.display = "block";
-        img.style.margin = "20px auto";
+            });
 
-        (currentColumns || div).appendChild(img);
-        return;
-    }
+            display.appendChild(div);
 
-    /* VIDEO */
-    if (line.startsWith("#video:")) {
-
-        const url = line.replace("#video:", "").trim();
-
-        const video = document.createElement("video");
-        video.src = url;
-        video.controls = true;
-        video.style.maxWidth = "100%";
-        video.style.display = "block";
-        video.style.margin = "20px auto";
-
-        (currentColumns || div).appendChild(video);
-        return;
-    }
-
-    /* LINK */
-    if (line.startsWith("#link:")) {
-
-        const url = line.replace("#link:", "").trim();
-
-        const a = document.createElement("a");
-        a.href = url;
-        a.innerText = url;
-        a.target = "_blank";
-        a.style.color = currentColor;
-        a.style.display = "block";
-        a.style.margin = "10px 0";
-
-        (currentColumns || div).appendChild(a);
-        return;
-    }
-
-    /* PARAGRAPH SPACING */
-
-if (line.trim() === "") {
-
-    const spacer = document.createElement("div");
-    spacer.style.height = "1.2em";
-
-    (currentColumns || div).appendChild(spacer);
-    return;
-}
-
-/* NORMAL TEXT */
-
-const lineSpan = document.createElement("span");
-lineSpan.style.display = "block";
-lineSpan.style.color = currentColor;
-lineSpan.innerText = line;
-
-(currentColumns || div).appendChild(lineSpan);
-
-});
-
-display.appendChild(div);
-
-})
-.catch(err => {
-
-    display.innerHTML = "<div style='color:white'>Conteúdo não encontrado</div>";
-    console.error(err);
-
-});
+        })
+        .catch(err => {
+            display.innerHTML = "<div style='color:white'>Conteúdo não encontrado</div>";
+            console.error(err);
+        });
 }
     /* =========================
        APPS FULLSCREEN (.js dentro de apps-fullscreen/)
