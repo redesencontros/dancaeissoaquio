@@ -325,7 +325,7 @@ void main() {
 const fragmentShaderSource = `
 precision mediump float;
 void main() {
-  gl_FragColor = vec4(1, 1, 1, 1);
+  gl_FragColor = vec4(0.4, 0.4, 0.4, 0.4);
 }
 `;
 
@@ -390,6 +390,14 @@ function getNearbyBoids(boid) {
 }
 
 const entrySide = Math.floor(Math.random() * 4);
+
+let driftAngle = 0;
+const driftRadius = 120;
+let wavePhase = 0;
+let driftDirection = 1;
+let driftChaos = 0;
+let flowTime = 0;
+const flowScale = 0.003;
 
 class Boid {
   constructor() {
@@ -468,10 +476,36 @@ class Boid {
     }
 
     const globalPull = 0.00015;
-    this.vx += (width / 2 - this.x) * globalPull;
-    this.vy += (height / 2 - this.y) * globalPull;
 
-    const speedSq = this.vx * this.vx + this.vy * this.vy;
+const driftX = width/2 + Math.cos(driftAngle + this.x*0.002) * driftRadius;
+const driftY = height/2 + Math.sin(driftAngle + this.y*0.002) * driftRadius;
+
+this.vx += (driftX - this.x) * globalPull;
+this.vy += (driftY - this.y) * globalPull;
+
+/* vertical balance */
+this.vy += (height/2 - this.y) * 0.00005;
+this.vx += Math.sin(wavePhase + this.x * 0.01) * 0.05;
+this.vy += Math.cos(wavePhase + this.y * 0.01) * 0.05;
+
+/* ORGANIC FLOW FIELD (non-rotational) */
+
+const nx = this.x * flowScale;
+const ny = this.y * flowScale;
+
+const fx = Math.sin(nx + flowTime);
+const fy = Math.cos(ny + flowTime * 0.8);
+
+this.vx += fx * 0.05;
+this.vy += fy * 0.05;
+
+/* directional drift */
+this.vx += Math.sin(flowTime * 0.2) * 0.01;
+
+    // tiny turbulence to prevent circular equilibrium
+this.vx += (Math.random() - 0.5) * 0.03;
+this.vy += (Math.random() - 0.5) * 0.03;
+const speedSq = this.vx * this.vx + this.vy * this.vy;
     const maxSpeed = 3;
     if (speedSq > maxSpeed * maxSpeed) {
       const scale = maxSpeed / Math.sqrt(speedSq);
@@ -493,6 +527,19 @@ gl.bufferData(gl.ARRAY_BUFFER, positions.byteLength, gl.DYNAMIC_DRAW);
 
 function animate() {
   frame++;
+
+  flowTime += 0.004;
+// occasionally flip rotation direction
+if (Math.random() < 0.002) {
+    driftDirection *= -1;
+}
+
+// chaotic drift movement
+driftChaos += (Math.random() - 0.5) * 0.02;
+
+driftAngle += (0.002 + driftChaos) * driftDirection;
+
+wavePhase += 0.015;
 
   buildGrid();
 
