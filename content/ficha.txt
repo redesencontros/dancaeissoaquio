@@ -1,1 +1,90 @@
-Ficha técnica
+#align:center
+#size:2em
+**‘DANÇA é isso aqui, ó’**
+
+#size:1.2em
+__Criação__
+#size:1em
+Bernardo Stumpf
+Daniel Figueiredo
+Mariana Rocha
+Thiago de Souza
+
+#size:1.2em
+__Fotografias__
+#size:1em
+Daniela López Lugo
+Jessica Queiroz
+Leonard Ferraz
+Mariana Rocha
+Renato Mangolin
+
+#size:1.2em
+__Vídeos__
+#size:1em
+Daniel Figueiredo
+Jessica Queiroz
+Leonardo Nabuco
+Mariana Rocha
+
+#size:1.2em
+__Programação__
+#size:1em
+Bernardo Stumpf
+(colaboração: Mathias Basílio)
+
+#size:1.2em
+__Parceria__
+#size:1em
+Netuhria Criações
+
+#size:1.2em
+__Realização__
+rdct
+
+#size:2em
+**CENA-FESTA ‘DANÇA’**
+
+#size:1.2em
+__Criação e atuação__
+#size:1em
+Bernardo Stumpf
+Hugo Oliveira
+Luana Bezerra
+Luciana Monnerat
+Thiago de Souza
+
+#size:1.2em
+__Ações-conjuntas__
+#size:1em
+Bonde do Jack
+Casa de Cosmos
+Clube do Passinho
+Daniela López Lugo
+DJ Jed
+E.C.C. Deoclécio Damasceno de Freitas
+Eu Amo Baile Charme
+Fresh Baile Charme
+Gabriela Cordovez y DJ Dani
+Galeria Providência
+Groove Party
+Imperadores da Dança
+Jamaicaxias
+La Parceria
+La Puerca Jam
+Marina Santo
+
+#size:1.2em
+__Produção__
+#size:1em
+Jessica Queiroz
+
+#size:1.2em
+__Parceria__
+#size:1em
+Galeria Providência
+
+#size:1.2em
+__Realização__
+#size:1em
+rdct
