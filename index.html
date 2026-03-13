@@ -937,9 +937,10 @@ if (line.startsWith("#size:")) {
                 lineSpan.style.color = currentColor;
                 lineSpan.style.fontSize = currentSize;
                 lineSpan.innerHTML = line
+    .replace(/__(.*?)__/g, "<u>$1</u>")
     .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
-    .replace(/\*(.*?)\*/g, "<i>$1</i>")
-    .replace(/__(.*?)__/g, "<u>$1</u>");
+    .replace(/\*(.*?)\*/g, "<i>$1</i>");
+
 
                 (currentColumns || div).appendChild(lineSpan);
 
