@@ -1,9 +1,11 @@
 #align:center
-#size:2em
+#size:1.5em
 **‘DANÇA é isso aqui, ó’**
+
 
 #size:1.2em
 __Criação__
+
 #size:1em
 Bernardo Stumpf
 Daniel Figueiredo
@@ -12,6 +14,7 @@ Thiago de Souza
 
 #size:1.2em
 __Fotografias__
+
 #size:1em
 Daniela López Lugo
 Jessica Queiroz
@@ -21,6 +24,7 @@ Renato Mangolin
 
 #size:1.2em
 __Vídeos__
+
 #size:1em
 Daniel Figueiredo
 Jessica Queiroz
@@ -29,24 +33,30 @@ Mariana Rocha
 
 #size:1.2em
 __Programação__
+
 #size:1em
 Bernardo Stumpf
 (colaboração: Mathias Basílio)
 
 #size:1.2em
 __Parceria__
+
 #size:1em
 Netuhria Criações
 
 #size:1.2em
 __Realização__
+
 rdct
 
-#size:2em
+
+#size:1.5em
 **CENA-FESTA ‘DANÇA’**
+
 
 #size:1.2em
 __Criação e atuação__
+
 #size:1em
 Bernardo Stumpf
 Hugo Oliveira
@@ -56,6 +66,7 @@ Thiago de Souza
 
 #size:1.2em
 __Ações-conjuntas__
+
 #size:1em
 Bonde do Jack
 Casa de Cosmos
@@ -76,15 +87,18 @@ Marina Santo
 
 #size:1.2em
 __Produção__
+
 #size:1em
 Jessica Queiroz
 
 #size:1.2em
 __Parceria__
+
 #size:1em
 Galeria Providência
 
 #size:1.2em
 __Realização__
+
 #size:1em
 rdct
