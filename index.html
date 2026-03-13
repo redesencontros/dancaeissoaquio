@@ -605,6 +605,7 @@ const CONFIG = {
     headerImage: "https://redesencontros.github.io/dancaeissoaquio/assets/header.png",
     buttonImage: "https://redesencontros.github.io/dancaeissoaquio/assets/button.png",
     buttonSound: "https://redesencontros.github.io/dancaeissoaquio/assets/button-sound.mp3",
+    menuBackgroundSound: "https://redesencontros.github.io/dancaeissoaquio/assets/menu-loop.ogg",
     contentListTxt: "https://redesencontros.github.io/dancaeissoaquio/content-list.txt"
 };
 
@@ -612,6 +613,55 @@ let deck = [];
 let currentIndex = 0;
 let currentAudio = null;
 let buttonClickSound = new Audio(CONFIG.buttonSound);
+
+/* =========================
+   GAPLESS MENU AUDIO (WebAudio)
+========================= */
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+let menuBuffer = null;
+let menuSource = null;
+
+/* VOLUME CONTROL */
+let menuGain = audioCtx.createGain();
+menuGain.gain.value = 0.2; // ⭐ menu volume (0.0 → 1.0)
+menuGain.connect(audioCtx.destination);
+
+/* preload and decode audio once */
+fetch(CONFIG.menuBackgroundSound)
+    .then(r => r.arrayBuffer())
+    .then(data => audioCtx.decodeAudioData(data))
+    .then(buffer => {
+        menuBuffer = buffer;
+    });
+
+function startMenuLoop() {
+
+    if (!menuBuffer) return;
+    if (menuSource) return;
+
+    menuSource = audioCtx.createBufferSource();
+    menuSource.buffer = menuBuffer;
+    menuSource.loop = true;
+
+    menuSource.connect(menuGain);
+    menuSource.start(0);
+}
+
+function stopMenuLoop() {
+
+    if (menuSource) {
+        menuSource.stop();
+        menuSource.disconnect();
+        menuSource = null;
+    }
+}
+
+/* MENU BACKGROUND AUDIO (created once) */
+let menuBackgroundAudio = new Audio(CONFIG.menuBackgroundSound);
+menuBackgroundAudio.loop = true;
+menuBackgroundAudio.preload = "auto";
 
 document.getElementById("headerImage").src = CONFIG.headerImage;
 document.getElementById("buttonImage").src = CONFIG.buttonImage;
@@ -665,6 +715,22 @@ function showContent(url) {
 const menuDisplay = document.getElementById("menuContent");
 
 const isMenu = url.includes("/content/");
+
+/* MENU AUDIO CONTROL (GAPLESS) */
+
+if (isMenu) {
+
+    if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+    }
+
+    startMenuLoop();
+
+} else {
+
+    stopMenuLoop();
+
+}
 
 const display = isMenu ? menuDisplay : gameDisplay;
 gameDisplay.innerHTML = "";
@@ -978,4 +1044,3 @@ document.addEventListener("keydown", (e) => {
 </body>
 
 </html>
-
