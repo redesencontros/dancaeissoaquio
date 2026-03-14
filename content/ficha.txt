@@ -1,4 +1,3 @@
-#size:0.9em
 #credits
 CRIAÇÃO | Bernardo Stumpf
 | Daniel Figueiredo
@@ -14,15 +13,11 @@ VÍDEOS | Daniel Figueiredo
 | Leonardo Nabuco
 | Mariana Rocha
 PROGRAMAÇÃO | Bernardo Stumpf
-| (colaboração: Mathias Basílio)
+| *(colaboração: Mathias Basílio)*
 PARCERIA | Netuhria Criações
 REALIZAÇÃO | rdct
 #endcredits
-#size:1em
-
-
 __CENA-FESTA ‘DANÇA’__
-#size:0.9em
 #credits
 CRIAÇÃO E ATUAÇÃO | Bernardo Stumpf
 | Hugo Oliveira
