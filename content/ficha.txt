@@ -19,6 +19,7 @@ REALIZAÇÃO | rdct
 #endcredits
 
 
+#size:1em
 __CENA-FESTA ‘DANÇA’__
 #credits
 CRIAÇÃO E ATUAÇÃO | Bernardo Stumpf
