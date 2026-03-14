@@ -19,6 +19,8 @@ PARCERIA | Netuhria Criações
 REALIZAÇÃO | rdct
 #endcredits
 #size:1em
+
+
 __CENA-FESTA ‘DANÇA’__
 #size:0.9em
 #credits
