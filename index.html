@@ -840,10 +840,9 @@ else if (lower.match(/\.txt$/)) {
 
             let currentColor = "white";
             let currentColumns = null;
-
             let currentSize = "1.2em";
             let inCredits = false;
-
+            let creditsGrid = null;
             let columnIndex = 0;
 let columns = [];
 
@@ -908,7 +907,19 @@ if (line.startsWith("#column")) {
     return;
 }
 if (line.startsWith("#credits")) {
+
     inCredits = true;
+
+    creditsGrid = document.createElement("div");
+    creditsGrid.style.display = "grid";
+    creditsGrid.style.gridTemplateColumns = "minmax(80px, max-content) 1fr";
+    creditsGrid.style.columnGap = "clamp(12px,4vw,28px)";
+    creditsGrid.style.rowGap = "4px";
+    creditsGrid.style.justifyContent = "center";
+    creditsGrid.style.margin = "0 auto";
+
+    (currentColumns || div).appendChild(creditsGrid);
+
     return;
 }
 
@@ -922,38 +933,25 @@ if (inCredits && line.includes("|")) {
     const role = parts[0].trim();
     const name = parts[1].trim();
 
-    const row = document.createElement("div");
-row.style.display = "grid";
-row.style.gridTemplateColumns = "max-content max-content";
-row.style.columnGap = "24px";
-row.style.marginBottom = "4px";
-row.style.alignItems = "start";
+    const roleSpan = document.createElement("span");
+    const nameSpan = document.createElement("span");
 
-if (role !== "") {
-    row.style.marginTop = "14px";
-}
+    roleSpan.textContent = role;
+    nameSpan.textContent = name;
 
-const roleSpan = document.createElement("span");
-const nameSpan = document.createElement("span");
+    roleSpan.style.textAlign = "right";
+    nameSpan.style.textAlign = "left";
 
-roleSpan.textContent = role;
-nameSpan.textContent = name;
+    roleSpan.style.opacity = "0.65";
 
-roleSpan.style.textAlign = "right";
-nameSpan.style.textAlign = "left";
+    roleSpan.style.fontSize = currentSize;
+    nameSpan.style.fontSize = currentSize;
 
-roleSpan.style.opacity = "0.65";
+    roleSpan.style.color = currentColor;
+    nameSpan.style.color = currentColor;
 
-roleSpan.style.fontSize = currentSize;
-nameSpan.style.fontSize = currentSize;
-
-roleSpan.style.color = currentColor;
-nameSpan.style.color = currentColor;
-
-row.appendChild(roleSpan);
-row.appendChild(nameSpan);
-
-    (currentColumns || div).appendChild(row);
+    creditsGrid.appendChild(roleSpan);
+    creditsGrid.appendChild(nameSpan);
 
     return;
 }
