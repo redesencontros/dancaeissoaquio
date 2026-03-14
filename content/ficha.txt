@@ -1,33 +1,33 @@
 #size:0.9em
 #credits
-Criação | Bernardo Stumpf
+CRIAÇÃO | Bernardo Stumpf
 | Daniel Figueiredo
 | Mariana Rocha
 | Thiago de Souza
-Fotografias | Daniela López Lugo
+FOTOGRAFIAS | Daniela López Lugo
 | Jessica Queiroz
 | Leonard Ferraz
 | Mariana Rocha
 | Renato Mangolin
-Vídeos | Daniel Figueiredo
+VÍDEOS | Daniel Figueiredo
 | Jessica Queiroz
 | Leonardo Nabuco
 | Mariana Rocha
-Programação | Bernardo Stumpf
+PROGRAMAÇÃO | Bernardo Stumpf
 | (colaboração: Mathias Basílio)
-Parceria | Netuhria Criações
-Realização | rdct
+PARCERIA | Netuhria Criações
+REALIZAÇÃO | rdct
 #endcredits
 #size:1em
 __CENA-FESTA ‘DANÇA’__
 #size:0.9em
 #credits
-Criação e atuação | Bernardo Stumpf
+CRIAÇÃO E ATUAÇÃO | Bernardo Stumpf
 | Hugo Oliveira
 | Luana Bezerra
 | Luciana Monnerat
 | Thiago de Souza
-Ações-conjuntas | Bonde do Jack
+AÇÕES-CONJUNTAS | Bonde do Jack
 | Casa de Cosmos
 | Clube do Passinho
 | Daniela López Lugo
@@ -43,7 +43,7 @@ Ações-conjuntas | Bonde do Jack
 | La Parceria
 | La Puerca Jam
 | Marina Santo
-Produção | Jessica Queiroz
-Parceria | Galeria Providência
-Realização | rdct
+PRODUÇÃO | Jessica Queiroz
+PARCERIA | Galeria Providência
+REALIZAÇÃO | rdct
 #endcredits
