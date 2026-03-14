@@ -240,16 +240,24 @@ canvas {
     pointer-events: auto;
 }
 
+/* HYPERLINK SYMBOL */
+
+#menuContent a::after {
+    content: "↗";
+    font-size: 0.75em;
+    margin-left: 0.2em;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+#menuContent a:hover::after {
+    opacity: 0.7;
+}
 /* MENU LINKS */
 
 #menuContent a {
     color: #d0e422;
     text-decoration: none;
-}
-
-#menuContent a:hover {
-    text-decoration: underline;
-    opacity: 0.8;
 }
 
 /* HIDE SCROLLBAR BUT KEEP SCROLLING */
