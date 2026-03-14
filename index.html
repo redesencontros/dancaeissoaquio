@@ -923,37 +923,35 @@ if (inCredits && line.includes("|")) {
     const name = parts[1].trim();
 
     const row = document.createElement("div");
-    row.style.display = "grid";
-    row.style.gridTemplateColumns = "clamp(120px,20vw,200px) 1fr";
-    row.style.columnGap = "24px";
-    row.style.paddingLeft = "6px";
-    row.style.marginBottom = "4px";
-    row.style.alignItems = "start";
+row.style.display = "grid";
+row.style.gridTemplateColumns = "max-content max-content";
+row.style.columnGap = "24px";
+row.style.marginBottom = "4px";
+row.style.alignItems = "start";
 
-    /* add extra space when a new role starts */
-    if (role !== "") {
-        row.style.marginTop = "14px";
-    }
+if (role !== "") {
+    row.style.marginTop = "14px";
+}
 
-    const roleSpan = document.createElement("span");
-    const nameSpan = document.createElement("span");
+const roleSpan = document.createElement("span");
+const nameSpan = document.createElement("span");
 
-    roleSpan.textContent = role;
-    nameSpan.textContent = name;
+roleSpan.textContent = role;
+nameSpan.textContent = name;
 
-    roleSpan.style.textAlign = "right";
-    roleSpan.style.opacity = "0.65";
-    roleSpan.style.whiteSpace = "normal";
-roleSpan.style.lineHeight = "1.2";
+roleSpan.style.textAlign = "right";
+nameSpan.style.textAlign = "left";
 
-    roleSpan.style.fontSize = currentSize;
-    nameSpan.style.fontSize = currentSize;
+roleSpan.style.opacity = "0.65";
 
-    roleSpan.style.color = currentColor;
-    nameSpan.style.color = currentColor;
+roleSpan.style.fontSize = currentSize;
+nameSpan.style.fontSize = currentSize;
 
-    row.appendChild(roleSpan);
-    row.appendChild(nameSpan);
+roleSpan.style.color = currentColor;
+nameSpan.style.color = currentColor;
+
+row.appendChild(roleSpan);
+row.appendChild(nameSpan);
 
     (currentColumns || div).appendChild(row);
 
