@@ -823,7 +823,7 @@ else if (lower.match(/\.txt$/)) {
 
             if (isMenu) {
 
-                div.style.maxWidth = "70ch";
+                div.style.maxWidth = "900px";
                 div.style.width = "100%";
                 div.style.margin = "0 auto";
                 div.style.padding = "4vh 20px";
@@ -843,10 +843,7 @@ else if (lower.match(/\.txt$/)) {
             let currentSize = "1.2em";
             let inCredits = false;
             let creditsGrid = null;
-            let columnIndex = 0;
-let columns = [];
-
-
+            
             lines.forEach(line => {
 
                 line = line.trim();
@@ -863,49 +860,7 @@ if (line.startsWith("#size:")) {
                     return;
                 }
 
-                if (line.startsWith("#endcolumns")) {
-                    currentColumns = null;
-                    return;
-                }
-
-                if (line.startsWith("#columns:")) {
-
-    const cols = parseInt(line.replace("#columns:", "").trim());
-
-    const columnContainer = document.createElement("div");
-    columnContainer.style.display = "grid";
-
-/* responsive columns */
-if (window.innerWidth < 768) {
-    columnContainer.style.gridTemplateColumns = "1fr";
-} else {
-    columnContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-}
-
-columnContainer.style.gap = "40px";
-columnContainer.style.maxWidth = "1000px";
-columnContainer.style.margin = "0 auto";
-
-    div.appendChild(columnContainer);
-
-    columns = [];
-    columnIndex = 0;
-
-    for (let i = 0; i < cols; i++) {
-        const col = document.createElement("div");
-        columnContainer.appendChild(col);
-        columns.push(col);
-    }
-
-    currentColumns = columns[columnIndex];
-    return;
-}
-
-if (line.startsWith("#column")) {
-    columnIndex++;
-    currentColumns = columns[columnIndex];
-    return;
-}
+                
 if (line.startsWith("#credits")) {
 
     inCredits = true;
@@ -917,8 +872,9 @@ if (line.startsWith("#credits")) {
     creditsGrid.style.rowGap = "4px";
     creditsGrid.style.justifyContent = "center";
     creditsGrid.style.margin = "0 auto";
+    creditsGrid.style.width = "fit-content";
 
-    (currentColumns || div).appendChild(creditsGrid);
+    div.appendChild(creditsGrid);
 
     return;
 }
@@ -966,7 +922,7 @@ if (inCredits && line.includes("|")) {
                     img.style.display = "block";
                     img.style.margin = "20px auto";
 
-                    (currentColumns || div).appendChild(img);
+                    div.appendChild(img);
                     return;
                 }
 
@@ -981,7 +937,7 @@ if (inCredits && line.includes("|")) {
                     video.style.display = "block";
                     video.style.margin = "20px auto";
 
-                    (currentColumns || div).appendChild(video);
+                    div.appendChild(video);
                     return;
                 }
 
@@ -995,7 +951,7 @@ if (inCredits && line.includes("|")) {
                     a.target = "_blank";
                     a.style.cssText = `color:${currentColor};display:block;margin:10px 0;`;
 
-                    (currentColumns || div).appendChild(a);
+                    div.appendChild(a);
                     return;
                 }
 
@@ -1004,7 +960,7 @@ if (inCredits && line.includes("|")) {
                     const spacer = document.createElement("div");
                     spacer.style.height = "1.2em";
 
-                    (currentColumns || div).appendChild(spacer);
+                    div.appendChild(spacer);
                     return;
                 }
 
@@ -1019,7 +975,7 @@ if (inCredits && line.includes("|")) {
     .replace(/\*(.*?)\*/g, "<i>$1</i>");
 
 
-                (currentColumns || div).appendChild(lineSpan);
+                div.appendChild(lineSpan);
 
             });
 
