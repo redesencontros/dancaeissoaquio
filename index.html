@@ -926,6 +926,7 @@ if (inCredits && line.includes("|")) {
     row.style.display = "grid";
     row.style.gridTemplateColumns = "clamp(120px,20vw,200px) 1fr";
     row.style.columnGap = "24px";
+    row.style.paddingLeft = "6px";
     row.style.marginBottom = "4px";
     row.style.alignItems = "start";
 
@@ -942,7 +943,8 @@ if (inCredits && line.includes("|")) {
 
     roleSpan.style.textAlign = "right";
     roleSpan.style.opacity = "0.65";
-    roleSpan.style.whiteSpace = "nowrap";
+    roleSpan.style.whiteSpace = "normal";
+roleSpan.style.lineHeight = "1.2";
 
     roleSpan.style.fontSize = currentSize;
     nameSpan.style.fontSize = currentSize;
