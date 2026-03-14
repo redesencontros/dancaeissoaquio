@@ -1,6 +1,5 @@
-#align:center
 #size:1.2em
-‘DANÇA é isso aqui, ó’
+**‘DANÇA é isso aqui, ó’**
 
 #size:1em
 #credits
@@ -20,7 +19,8 @@ Vídeos | Daniel Figueiredo
 | Leonardo Nabuco
 | Mariana Rocha
 
-Programação | Bernardo Stumpf (colaboração: Mathias Basílio)
+Programação | Bernardo Stumpf
+| (colaboração: Mathias Basílio)
 
 Parceria | Netuhria Criações
 
@@ -28,7 +28,6 @@ Realização | rdct
 #endcredits
 
 
-#align:center
 #size:1.2em
 CENA-FESTA ‘DANÇA’
 
