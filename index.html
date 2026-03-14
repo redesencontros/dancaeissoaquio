@@ -842,6 +842,7 @@ else if (lower.match(/\.txt$/)) {
             let currentColumns = null;
 
             let currentSize = "1.2em";
+            let inCredits = false;
 
             let columnIndex = 0;
 let columns = [];
@@ -874,8 +875,17 @@ if (line.startsWith("#size:")) {
 
     const columnContainer = document.createElement("div");
     columnContainer.style.display = "grid";
+
+/* responsive columns */
+if (window.innerWidth < 768) {
+    columnContainer.style.gridTemplateColumns = "1fr";
+} else {
     columnContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-    columnContainer.style.gap = "20px";
+}
+
+columnContainer.style.gap = "40px";
+columnContainer.style.maxWidth = "1000px";
+columnContainer.style.margin = "0 auto";
 
     div.appendChild(columnContainer);
 
@@ -897,10 +907,55 @@ if (line.startsWith("#column")) {
     currentColumns = columns[columnIndex];
     return;
 }
-if (line.includes("|")) {
+if (line.startsWith("#credits")) {
+    inCredits = true;
+    return;
+}
+
+if (line.startsWith("#endcredits")) {
+    inCredits = false;
+    return;
+}
+if (inCredits && line.includes("|")) {
+
     const parts = line.split("|");
     const role = parts[0].trim();
     const name = parts[1].trim();
+
+    const row = document.createElement("div");
+    row.style.display = "grid";
+    row.style.gridTemplateColumns = "clamp(120px,20vw,200px) 1fr";
+    row.style.columnGap = "24px";
+    row.style.marginBottom = "4px";
+    row.style.alignItems = "start";
+
+    /* add extra space when a new role starts */
+    if (role !== "") {
+        row.style.marginTop = "14px";
+    }
+
+    const roleSpan = document.createElement("span");
+    const nameSpan = document.createElement("span");
+
+    roleSpan.textContent = role;
+    nameSpan.textContent = name;
+
+    roleSpan.style.textAlign = "right";
+    roleSpan.style.opacity = "0.65";
+    roleSpan.style.whiteSpace = "nowrap";
+
+    roleSpan.style.fontSize = currentSize;
+    nameSpan.style.fontSize = currentSize;
+
+    roleSpan.style.color = currentColor;
+    nameSpan.style.color = currentColor;
+
+    row.appendChild(roleSpan);
+    row.appendChild(nameSpan);
+
+    (currentColumns || div).appendChild(row);
+
+    return;
 }
 
                 if (line.startsWith("#image:")) {
