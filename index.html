@@ -865,11 +865,17 @@ if (line.startsWith("#credits")) {
 
     inCredits = true;
 
-    creditsGrid = document.createElement("div");
+    creditsGrid = document.createElement("div");   // ⭐ MISSING LINE
+
     creditsGrid.style.display = "grid";
-    creditsGrid.style.gridTemplateColumns = "minmax(80px, max-content) 1fr";
-    creditsGrid.style.columnGap = "clamp(12px,4vw,28px)";
-    creditsGrid.style.rowGap = "4px";
+    creditsGrid.style.gridTemplateColumns = "max-content max-content";
+
+    if (window.innerWidth < 768) {
+        creditsGrid.style.gridTemplateColumns = "1fr";
+    }
+
+    creditsGrid.style.columnGap = "clamp(20px,4vw,60px)";
+    creditsGrid.style.rowGap = "6px";
     creditsGrid.style.justifyContent = "center";
     creditsGrid.style.margin = "0 auto";
     creditsGrid.style.width = "fit-content";
@@ -893,10 +899,22 @@ if (inCredits && line.includes("|")) {
     const nameSpan = document.createElement("span");
 
     roleSpan.textContent = role;
+    roleSpan.style.whiteSpace = "nowrap";
     nameSpan.textContent = name;
 
-    roleSpan.style.textAlign = "right";
-    nameSpan.style.textAlign = "left";
+    /* RESPONSIVE ALIGNMENT */
+
+    if (window.innerWidth < 768) {
+
+        roleSpan.style.textAlign = "center";
+        nameSpan.style.textAlign = "center";
+
+    } else {
+
+        roleSpan.style.textAlign = "right";
+        nameSpan.style.textAlign = "left";
+
+    }
 
     roleSpan.style.opacity = "0.65";
 
@@ -905,6 +923,13 @@ if (inCredits && line.includes("|")) {
 
     roleSpan.style.color = currentColor;
     nameSpan.style.color = currentColor;
+
+    /* SPACE BEFORE NEW ROLE GROUP */
+
+    if (role !== "") {
+        roleSpan.style.marginTop = "14px";
+        nameSpan.style.marginTop = "14px";
+    }
 
     creditsGrid.appendChild(roleSpan);
     creditsGrid.appendChild(nameSpan);
