@@ -20,7 +20,7 @@ REALIZAÇÃO | rdct
 
 
 #size:1.15em
-__CENA-FESTA ‘DANÇA’__
+__Cena-festa ‘DANÇA’__
 #credits
 CRIAÇÃO E ATUAÇÃO | Bernardo Stumpf
 | Hugo Oliveira
