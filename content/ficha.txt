@@ -2,6 +2,8 @@
 **‘DANÇA é isso aqui, ó’**
 
 #size:1em
+#columns:2
+#column
 #credits
 Criação | Bernardo Stumpf
 | Daniel Figueiredo
@@ -26,9 +28,12 @@ Parceria | Netuhria Criações
 
 Realização | rdct
 #endcredits
+#endcolumn
 
 
-#size:1.2em
+#size:1em
+#column
+#credits
 CENA-FESTA ‘DANÇA’
 
 #size:1em
@@ -62,3 +67,4 @@ Parceria | Galeria Providência
 
 Realização | rdct
 #endcredits
+#endcolumn
