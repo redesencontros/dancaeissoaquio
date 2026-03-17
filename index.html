@@ -419,7 +419,7 @@ void main() {
 const fragmentShaderSource = `
 precision mediump float;
 void main() {
-  gl_FragColor = vec4(0.4, 0.4, 0.4, 0.4);
+  gl_FragColor = vec4(0.4, 0.4, 0.4, 0.25);
 }
 `;
 
@@ -451,10 +451,10 @@ gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 /* ---------- BOIDS (UNCHANGED LOGIC) ---------- */
 
 const isMobile = window.innerWidth < 768;
-const BOID_COUNT = isMobile ? 500 : 3500;
+const BOID_COUNT = isMobile ? 500 : 6000;
 const boids = [];
 let frame = 0;
-const perception = 30;
+const perception = 22;
 const cellSize = perception;
 let grid = {};
 
@@ -614,7 +614,7 @@ if (this.y > height - margin) this.vy -= push;
 /* SPEED LIMIT */
 
 const speedSq = this.vx * this.vx + this.vy * this.vy;
-const maxSpeed = 2.5;
+const maxSpeed = 3.5;
     if (speedSq > maxSpeed * maxSpeed) {
       const scale = maxSpeed / Math.sqrt(speedSq);
       this.vx *= scale;
@@ -653,9 +653,9 @@ wavePhase += 0.015;
 
   for (let i = 0; i < boids.length; i++) {
 
-  if (i % 5 === frame % 5) {
+  if (i % 10 === frame % 10) {
     boids[i].update();
-  }
+}
 
   positions[i * 2] = boids[i].x;
   positions[i * 2 + 1] = boids[i].y;
