@@ -164,7 +164,7 @@ body{
 <div id="mpc">
     <div id="mpcBody">
         <div id="screen">
-            <span id="screenText">é isso aqui, ó</span>
+            <span id="screenText">MPC</span>
         </div>
 
         <div id="pads"></div>
@@ -182,6 +182,7 @@ let currentPadSource = null;
 let currentPadElement = null;
 let masterCompressor;
 let masterGain;
+let screenResetTimer = null;
 
 async function initBaseTrack() {
     const response = await fetch("audio/base.wav");
@@ -199,32 +200,33 @@ function playBaseLoop() {
 }
 
 async function loadPads() {
-    for (let url of padSounds) {
-        const response = await fetch(url);
-        const arrayBuffer = await response.arrayBuffer();
-        padBuffers[url] = await audioContext.decodeAudioData(arrayBuffer);
-    }
+for (let pad of pads) {
+const response = await fetch(pad.sound);
+const arrayBuffer = await response.arrayBuffer();
+padBuffers[pad.sound] = await audioContext.decodeAudioData(arrayBuffer);
+}
 }
 
-const padSounds = [
-"audio/danca.wav",
-"audio/hiphop.wav",
-"audio/funk.wav",
-"audio/aovivo.wav",
-"audio/lapragalera.wav",
-"audio/caravaisertipoassim.wav",
-"audio/senteopassim.wav",
-"audio/passim.wav",
-"audio/muitochocante.wav"
+const pads = [
+{sound:"audio/danca.wav", label:"dança"},
+{sound:"audio/hiphop.wav", label:"hiphop"},
+{sound:"audio/funk.wav", label:"funk"},
+{sound:"audio/aovivo.wav", label:"aovivo"},
+{sound:"audio/lapragalera.wav", label:"lápragalera"},
+{sound:"audio/caravaisertipoassim.wav", label:"caravaisertipoassim"},
+{sound:"audio/senteopassim.wav", label:"senteopassim"},
+{sound:"audio/passim.wav", label:"passim"},
+{sound:"audio/muitochocante.wav", label:"muitochocante"}
 ];
 
 const screen = document.getElementById("screen");
 const padContainer = document.getElementById("pads");
 
-padSounds.forEach((sound)=>{
+pads.forEach((padData)=>{
     const pad = document.createElement("div");
     pad.classList.add("pad");
-    pad.dataset.sound = sound;
+    pad.dataset.sound = padData.sound;
+pad.dataset.label = padData.label;
     padContainer.appendChild(pad);
     pad.addEventListener("pointerdown", () => triggerPad(pad));
 });
@@ -233,11 +235,18 @@ function triggerPad(pad){
     const buffer = padBuffers[pad.dataset.sound];
     if (!buffer) return;
 
-    const fileName = pad.dataset.sound.split("/").pop().replace(".wav", "");
-    screenText.textContent = fileName;
-    screenText.classList.remove("blink");
-    void screenText.offsetWidth;
-    screenText.classList.add("blink");
+    const fileName = pad.dataset.label;
+screenText.textContent = fileName;
+
+screenText.classList.remove("blink");
+void screenText.offsetWidth;
+screenText.classList.add("blink");
+
+// restart countdown every pad press
+clearTimeout(screenResetTimer);
+screenResetTimer = setTimeout(()=>{
+    screenText.textContent = "MPC";
+}, 900);
 
     const now = audioContext.currentTime;
 
