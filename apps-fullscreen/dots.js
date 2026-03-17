@@ -37,8 +37,26 @@ document.body.appendChild(trailCanvas);
 document.body.appendChild(dotCanvas);
 
 function resizeCanvas() {
-  trailCanvas.width = dotCanvas.width = window.innerWidth;
-  trailCanvas.height = dotCanvas.height = window.innerHeight;
+
+  const dpr = window.devicePixelRatio || 1;
+
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+
+  trailCanvas.width = w * dpr;
+  trailCanvas.height = h * dpr;
+
+  dotCanvas.width = w * dpr;
+  dotCanvas.height = h * dpr;
+
+  trailCanvas.style.width = w + "px";
+  trailCanvas.style.height = h + "px";
+
+  dotCanvas.style.width = w + "px";
+  dotCanvas.style.height = h + "px";
+
+  trailCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  dotCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
@@ -182,7 +200,7 @@ class Dot {
 
   drawDot(ctx) {
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
+    ctx.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, Math.PI*2);
     ctx.fillStyle = this.color;
     ctx.fill();
   }
