@@ -79,7 +79,7 @@ html, body {
 }
 
 /* MOBILE HEADER */
-@media (max-width: 767px) {
+@media (max-width: 600px) {
     #header {
         justify-content: flex-start;   /* align left on mobile */
        padding-top: 20px; /* match #menuButton top */
@@ -91,7 +91,7 @@ html, body {
         height: auto;
     }
 }
-
+ 
 /* CONTENT */
 #contentDisplay {
     flex: 1; /* takes remaining vertical space */
@@ -185,7 +185,52 @@ canvas {
     margin: 5px 0;
     transition: transform 0.3s, opacity 0.3s;
 }
+/* =========================
+   FULLSCREEN
+========================= */
+#fullscreenButton {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
 
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    pointer-events: auto;
+
+    opacity: 0.8;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+#fullscreenButton:hover {
+    transform: scale(1.1);
+    opacity: 1;
+}
+#fullscreenButton::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: 110%; /* above the button */
+    right: 0;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(4px);
+    color: white;
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(5px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+
+    white-space: nowrap;
+}
+
+#fullscreenButton:hover::after {
+    opacity: 1;
+    transform: translateY(0);
+}
 /* ANIMATION */
 
 #menuButton.open span:nth-child(1) {
@@ -325,7 +370,7 @@ font-size: 0.85em;
 
 /* MOBILE */
 
-@media (max-width: 767px) {
+@media (max-width: 600px) {
 
     .creditsGrid {
         grid-template-columns: 1fr;
@@ -364,6 +409,10 @@ font-size: 0.85em;
     </button>
 
 </div>
+<!-- =========================
+     FULLSCREEN BUTTON
+========================= -->
+<div id="fullscreenButton">⛶</div>
 <!-- =========================
      MENU BUTTON
 ========================= -->
@@ -1176,6 +1225,73 @@ document.addEventListener("keydown", (e) => {
             menuButton.classList.remove("open");
         }
     }
+});
+
+/* =========================
+   HIDE FULLSCREEN ON iOS
+========================= */
+
+function isIOS() {
+    return /iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+function supportsFullscreen() {
+    return !!(
+        document.documentElement.requestFullscreen ||
+        document.documentElement.webkitRequestFullscreen ||
+        document.documentElement.msRequestFullscreen
+    );
+}
+
+/* hide button if iOS OR unsupported */
+if (isIOS() || !supportsFullscreen()) {
+    fsButton.style.display = "none";
+}
+
+/* =========================
+   FULLSCREEN
+========================= */
+const fsButton = document.getElementById("fullscreenButton");
+fsButton.setAttribute("data-label", "TELA CHEIA");
+fsButton.addEventListener("click", () => {
+
+    const el = document.documentElement;
+
+    if (!document.fullscreenElement) {
+
+        if (el.requestFullscreen) {
+            el.requestFullscreen();
+        } else if (el.webkitRequestFullscreen) { // Safari/old
+            el.webkitRequestFullscreen();
+        } else if (el.msRequestFullscreen) { // IE
+            el.msRequestFullscreen();
+        }
+
+    } else {
+
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        }
+
+    }
+
+});
+document.addEventListener("fullscreenchange", () => {
+
+    const fsButton = document.getElementById("fullscreenButton");
+
+    if (document.fullscreenElement) {
+    fsButton.textContent = "✕";
+    fsButton.setAttribute("data-label", "SAIR TELA CHEIA");
+} else {
+    fsButton.textContent = "⛶";
+    fsButton.setAttribute("data-label", "TELA CHEIA");
+}
+
 });
 </script>
 </body>
