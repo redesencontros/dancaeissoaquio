@@ -451,7 +451,7 @@ gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 /* ---------- BOIDS (UNCHANGED LOGIC) ---------- */
 
 const isMobile = window.innerWidth < 768;
-const BOID_COUNT = isMobile ? 500 : 2000;
+const BOID_COUNT = isMobile ? 500 : 3500;
 const boids = [];
 let frame = 0;
 const perception = 30;
@@ -571,14 +571,14 @@ class Boid {
 
     const globalPull = 0.00015;
 
-const driftX = width/2 + Math.cos(driftAngle + this.x*0.002) * driftRadius;
-const driftY = height/2 + Math.sin(driftAngle + this.y*0.002) * driftRadius;
+const driftX = width/2 + Math.sin(flowTime * 0.2) * width * 0.35;
+const driftY = height/2 + Math.cos(flowTime * 0.15) * height * 0.35;
 
 this.vx += (driftX - this.x) * globalPull;
 this.vy += (driftY - this.y) * globalPull;
 
 /* vertical balance */
-this.vy += (height/2 - this.y) * 0.00005;
+this.vy += (height/2 - this.y) * 0.00001;
 this.vx += Math.sin(wavePhase + this.x * 0.01) * 0.05;
 this.vy += Math.cos(wavePhase + this.y * 0.01) * 0.05;
 
@@ -599,8 +599,22 @@ this.vx += Math.sin(flowTime * 0.2) * 0.01;
     // tiny turbulence to prevent circular equilibrium
 this.vx += (Math.random() - 0.5) * 0.03;
 this.vy += (Math.random() - 0.5) * 0.03;
+
+/* SCREEN EDGE PUSH */
+
+const margin = 120;
+const push = 0.002;
+
+if (this.x < margin) this.vx += push;
+if (this.x > width - margin) this.vx -= push;
+
+if (this.y < margin) this.vy += push;
+if (this.y > height - margin) this.vy -= push;
+
+/* SPEED LIMIT */
+
 const speedSq = this.vx * this.vx + this.vy * this.vy;
-    const maxSpeed = 3;
+const maxSpeed = 2.5;
     if (speedSq > maxSpeed * maxSpeed) {
       const scale = maxSpeed / Math.sqrt(speedSq);
       this.vx *= scale;
