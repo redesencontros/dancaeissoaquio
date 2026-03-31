@@ -750,7 +750,7 @@ let menuSource = null;
 
 /* VOLUME CONTROL */
 let menuGain = audioCtx.createGain();
-menuGain.gain.value = 0.2; // ⭐ menu volume (0.0 → 1.0)
+menuGain.gain.value = 1; // ⭐ menu volume (0.0 → 1.0)
 menuGain.connect(audioCtx.destination);
 
 /* preload and decode audio once */
