@@ -1,3 +1,4 @@
+content/gif1.gif
 content/comecou.gif
 apps-fullscreen/dots.js
 apps/mpc/index.html
